@@ -1,0 +1,21 @@
+import API from "./axios";
+
+export const fetchProducts = () => API.get("/products");
+export const fetchCategories = () => API.get("/categories");
+export const addCartItem = (productId, quantity = 1) => API.post("/cart/add", { productId, quantity });
+export const fetchCart = () => API.get("/cart");
+export const updateCartItem = (productId, quantity) => API.put(`/cart/update/${productId}`, { quantity });
+export const removeCartItem = (productId) => API.delete(`/cart/remove/${productId}`);
+export const clearCart = () => API.delete("/cart/clear");
+export const getAddresses = () => API.get("/address");
+export const addAddress = (payload) => API.post("/address/add", payload);
+export const placeOrder = (addressId, paymentMethod = "COD") => API.post("/orders/place", { addressId, paymentMethod });
+export const createRazorpayOrder = (orderId) => API.post("/payment/create-order", { orderId });
+export const verifyRazorpayPayment = (payload) => API.post("/payment/verify", payload);
+export const fetchMyOrders = () => API.get("/orders/my-orders");
+export const fetchOrderById = (orderId) => API.get(`/orders/${orderId}`);
+export const fetchAllOrders = () => API.get("/orders");
+export const updateOrderStatus = (orderId, orderStatus) => API.put(`/orders/${orderId}/status`, { orderStatus });
+export const createProduct = (payload) => API.post("/products/add", payload);
+export const loginUser = (payload) => API.post("/auth/login", payload);
+export const registerUser = (payload) => API.post("/auth/register", payload);
