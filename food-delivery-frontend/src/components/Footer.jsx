@@ -1,7 +1,9 @@
 function Footer() {
   return (
     <div>
-      <h1>Footer</h1>
+       <footer className="bg-black text-white py-5 text-center">
+      © 2026 Food Delivery. All Rights Reserved.
+    </footer>
     </div>
   );
 }
