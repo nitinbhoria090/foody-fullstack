@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MainLayout from "./components/layouts/MainLayout";
 import AddItem from "./components/admin/AddItem";
+import EditFood from "./components/admin/EditFood";
 
 // Optional
 // import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
   {
     path: "/admin/items/add",
     element: <AddItem />,
+  },
+  {
+    path: "/admin/items/edit/:id",
+    element: <EditFood />,
   },
 
   // User Protected Routes

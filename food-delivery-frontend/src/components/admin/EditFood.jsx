@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import { FiUploadCloud, FiX, FiArrowLeft, FiCheck } from "react-icons/fi";
+import { FiArrowLeft, FiCheck, FiTrash2 } from "react-icons/fi";
 import { CgSpinner } from "react-icons/cg";
 import { toast } from "sonner"; // ⚠️ swap for your actual toast lib if different
 
@@ -16,7 +16,8 @@ const authHeaders = () => ({
   withCredentials: true,
 });
 
-const AddItem = () => {
+const EditFood = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -25,37 +26,48 @@ const AddItem = () => {
     price: "",
     category: "", // "veg" | "non-veg"
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [existingImage, setExistingImage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [errors, setErrors] = useState({});
+
+  /* ---------- Load existing product ---------- */
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL}/api/products/${id}`,
+          authHeaders()
+        );
+        if (res.data.success) {
+          const p = res.data.product;
+          setForm({
+            name: p.name || "",
+            description: p.description || "",
+            price: p.price ?? "",
+            category: p.category || "",
+          });
+          setExistingImage(p.image || "");
+        } else {
+          toast.error("Product not found");
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Failed to fetch product:", err);
+        toast.error(err.response?.data?.message || "Failed to load item");
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id, navigate]);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: null }));
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
-      return;
-    }
-
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-    setErrors((prev) => ({ ...prev, image: null }));
-  };
-
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
   };
 
   const validate = () => {
@@ -64,7 +76,6 @@ const AddItem = () => {
     if (!form.description.trim()) newErrors.description = "Description is required";
     if (!form.price || Number(form.price) <= 0) newErrors.price = "Enter a valid price";
     if (!form.category) newErrors.category = "Please select Veg or Non-Veg";
-    if (!imageFile) newErrors.image = "Image is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -75,31 +86,59 @@ const AddItem = () => {
 
     try {
       setSubmitting(true);
-console.log("Token being sent:", localStorage.getItem("Token"));
-      const formData = new FormData();
-      formData.append("name", form.name.trim());
-      formData.append("description", form.description.trim());
-      formData.append("price", form.price);
-      formData.append("category", form.category); // "veg" or "non-veg"
-      formData.append("image", imageFile); // must match multer's upload.single("image")
 
-      // ⚠️ ADJUST: swap for your actual "add product" endpoint
-      const res = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/products/add`,
-        formData,
+      // ⚠️ Note: the current PUT /api/products/:id route has no multer
+      // middleware, so it can only update text fields (name, description,
+      // price, category) — not the image. Sending JSON here, not FormData.
+      const res = await axios.put(
+        `${import.meta.env.VITE_APP_API_URL}/api/products/${id}`,
+        {
+          name: form.name.trim(),
+          description: form.description.trim(),
+          price: Number(form.price),
+          category: form.category,
+        },
         authHeaders()
       );
 
       if (res.data.success) {
-        toast.success("Item added successfully");
-        navigate("/admin/items/add"); // ⚠️ ADJUST route to your items list page
+        toast.success("Item updated successfully");
+        navigate("/admin"); // ⚠️ ADJUST route to your dashboard/items list
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to add item");
+      toast.error(err.response?.data?.message || "Failed to update item");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this item? This cannot be undone.")) return;
+
+    try {
+      setDeleting(true);
+      const res = await axios.delete(
+        `${import.meta.env.VITE_APP_API_URL}/api/products/${id}`,
+        authHeaders()
+      );
+      if (res.data.success) {
+        toast.success("Item deleted");
+        navigate("/admin"); // ⚠️ ADJUST route to your dashboard/items list
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete item");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-stone-50">
+        <CgSpinner className="h-8 w-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-stone-50 pb-20 font-sans overflow-x-hidden">
@@ -114,10 +153,10 @@ console.log("Token being sent:", localStorage.getItem("Token"));
             Back
           </button>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Add New Item
+            Edit Item
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-orange-100">
-            Fill in the details below to add a new item to your menu
+            Update the details for this menu item
           </p>
         </div>
       </div>
@@ -128,51 +167,27 @@ console.log("Token being sent:", localStorage.getItem("Token"));
           onSubmit={handleSubmit}
           className="rounded-2xl border border-stone-200/80 bg-white p-5 sm:p-7 shadow-sm space-y-6"
         >
-          {/* Image Upload */}
+          {/* Existing Image (read-only) */}
           <div>
             <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-stone-700">
               Item Image
             </label>
-
-            {imagePreview ? (
-              <div className="relative h-44 w-full sm:w-56 overflow-hidden rounded-2xl border border-stone-200">
+            <div className="h-44 w-full sm:w-56 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">
+              {existingImage ? (
                 <img
-                  src={imagePreview}
-                  alt="Preview"
+                  src={existingImage}
+                  alt={form.name}
                   className="h-full w-full object-cover"
                 />
-                <button
-                  type="button"
-                  onClick={removeImage}
-                  className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
-                >
-                  <FiX className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <label
-                htmlFor="image-upload"
-                className={`flex h-44 w-full sm:w-56 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed ${
-                  errors.image ? "border-red-300 bg-red-50" : "border-stone-300 bg-stone-50"
-                } text-center transition-colors hover:border-orange-400 hover:bg-orange-50`}
-              >
-                <FiUploadCloud className="h-7 w-7 text-stone-400" />
-                <span className="px-4 text-xs font-semibold text-stone-500">
-                  Click to upload image
-                </span>
-                <span className="text-[10px] text-stone-400">PNG, JPG up to 5MB</span>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </label>
-            )}
-            {errors.image && (
-              <p className="mt-1.5 text-xs font-medium text-red-500">{errors.image}</p>
-            )}
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs text-stone-400">
+                  No image
+                </div>
+              )}
+            </div>
+            <p className="mt-1.5 text-[11px] text-stone-400">
+              Image editing isn't supported yet — add multer to the PUT route to enable this.
+            </p>
           </div>
 
           {/* Name */}
@@ -238,7 +253,6 @@ console.log("Token being sent:", localStorage.getItem("Token"));
             </label>
 
             <div className="grid grid-cols-2 gap-3 max-w-sm">
-              {/* Veg */}
               <button
                 type="button"
                 onClick={() => handleChange("category", "veg")}
@@ -257,7 +271,6 @@ console.log("Token being sent:", localStorage.getItem("Token"));
                 )}
               </button>
 
-              {/* Non-Veg */}
               <button
                 type="button"
                 onClick={() => handleChange("category", "non-veg")}
@@ -282,30 +295,52 @@ console.log("Token being sent:", localStorage.getItem("Token"));
             )}
           </div>
 
-          {/* Submit */}
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+          {/* Actions */}
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate(-1)}
-              className="h-11 rounded-xl border-stone-200 text-sm font-semibold text-stone-700"
+              onClick={handleDelete}
+              disabled={deleting || submitting}
+              className="h-11 rounded-xl border-red-200 text-sm font-semibold text-red-600 hover:bg-red-50"
             >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={submitting}
-              className="h-11 rounded-xl bg-orange-600 text-sm font-semibold text-white hover:bg-orange-700"
-            >
-              {submitting ? (
+              {deleting ? (
                 <>
                   <CgSpinner className="mr-2 h-4 w-4 animate-spin" />
-                  Adding Item...
+                  Deleting...
                 </>
               ) : (
-                "Add Item"
+                <>
+                  <FiTrash2 className="mr-2 h-4 w-4" />
+                  Delete Item
+                </>
               )}
             </Button>
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="h-11 rounded-xl border-stone-200 text-sm font-semibold text-stone-700"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting || deleting}
+                className="h-11 rounded-xl bg-orange-600 text-sm font-semibold text-white hover:bg-orange-700"
+              >
+                {submitting ? (
+                  <>
+                    <CgSpinner className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </div>
@@ -313,4 +348,4 @@ console.log("Token being sent:", localStorage.getItem("Token"));
   );
 };
 
-export default AddItem;
+export default EditFood;

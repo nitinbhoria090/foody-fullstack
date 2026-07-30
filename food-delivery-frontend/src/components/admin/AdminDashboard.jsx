@@ -18,7 +18,7 @@ import { CgSpinner } from "react-icons/cg";
 
 const authHeaders = () => ({
   headers: {
-    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
   },
   withCredentials: true,
 });
@@ -33,19 +33,18 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
-  /* ---------- Fetch all items belonging to this restaurant ---------- */
+  /* ---------- Fetch all items ---------- */
   useEffect(() => {
     const fetchItems = async () => {
       try {
         setLoadingItems(true);
-        // ⚠️ ADJUST: swap for your actual "get my items" endpoint
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/v1/restaurant/food/my-items`,
+          `${import.meta.env.VITE_APP_API_URL}/api/products`,
           authHeaders()
         );
-        if (res.data.success) setItems(res.data.data || []);
+        if (res.data.success) setItems(res.data.products || []);
       } catch (err) {
-        // Silently fail to keep dashboard usable
+        console.error("Failed to fetch items:", err);
       } finally {
         setLoadingItems(false);
       }
@@ -59,13 +58,15 @@ const AdminDashboard = () => {
       try {
         setLoadingOrders(true);
         // ⚠️ ADJUST: swap for your actual "get restaurant orders" endpoint
+        // once you share orderRoutes.js — likely something like:
+        // `${import.meta.env.VITE_APP_API_URL}/api/orders/restaurant`
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/v1/order/restaurant`,
+          `${import.meta.env.VITE_APP_API_URL}/api/orders/restaurant`,
           authHeaders()
         );
         if (res.data.success) setOrders(res.data.orders || []);
       } catch (err) {
-        // Silently fail
+        console.error("Failed to fetch orders:", err);
       } finally {
         setLoadingOrders(false);
       }
@@ -73,8 +74,8 @@ const AdminDashboard = () => {
     fetchOrders();
   }, []);
 
-  const vegItems = items.filter((i) => i.isVeg === true || i.foodType === "veg");
-  const nonVegItems = items.filter((i) => i.isVeg === false || i.foodType === "non-veg");
+  const vegItems = items.filter((i) => i.isVeg === true || i.category === "veg");
+  const nonVegItems = items.filter((i) => i.isVeg === false || i.category === "non-veg");
 
   const pendingOrders = orders.filter(
     (o) => o.status && !["delivered", "cancelled"].includes(o.status.toLowerCase())
@@ -89,7 +90,7 @@ const AdminDashboard = () => {
       value: items.length,
       icon: FiPackage,
       color: "bg-orange-50 text-orange-600",
-      onClick: () => navigate("/admin/items"), // ⚠️ ADJUST route
+      onClick: () => navigate("/admin/items"),
     },
     {
       label: "Veg Items",
@@ -110,7 +111,7 @@ const AdminDashboard = () => {
       value: pendingOrders.length,
       icon: FiShoppingBag,
       color: "bg-amber-50 text-amber-600",
-      onClick: () => navigate("/admin/orders"), // ⚠️ ADJUST route
+      onClick: () => navigate("/admin/orders"),
     },
   ];
 
@@ -119,19 +120,19 @@ const AdminDashboard = () => {
       label: "View Orders",
       desc: "See and manage incoming orders",
       icon: FiShoppingBag,
-      onClick: () => navigate("/admin/orders"), // ⚠️ ADJUST route
+      onClick: () => navigate("/admin/orders"),
     },
     {
       label: "Add New Item",
       desc: "Add a dish to your menu",
       icon: FiPlusCircle,
-      onClick: () => navigate("/admin/items/add"), // ⚠️ ADJUST route
+      onClick: () => navigate("/admin/items/add"),
     },
     {
       label: "Edit Items",
       desc: "Update prices, availability & details",
       icon: FiEdit3,
-      onClick: () => navigate("/admin/items"), // ⚠️ ADJUST route
+      onClick: () => navigate("/admin/editItem"),
     },
   ];
 
@@ -240,7 +241,7 @@ const AdminDashboard = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {items.map((item) => {
-                const isVeg = item.isVeg === true || item.foodType === "veg";
+                const isVeg = item.isVeg === true || item.category === "veg";
                 return (
                   <div
                     key={item._id}
@@ -248,7 +249,11 @@ const AdminDashboard = () => {
                   >
                     <div className="relative h-32 w-full overflow-hidden bg-stone-100">
                       <img
-                        src={item.image || item.photoUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80"}
+                        src={
+                          item.image ||
+                          item.photoUrl ||
+                          "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80"
+                        }
                         alt={item.name}
                         className="h-full w-full object-cover"
                       />
@@ -286,7 +291,7 @@ const AdminDashboard = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => navigate(`/admin/items/edit/${item._id}`)} // ⚠️ ADJUST route
+                        onClick={() => navigate(`/admin/items/edit/${item._id}`)}
                         className="mt-3 h-8 w-full rounded-xl border-stone-200 text-xs font-semibold text-stone-700 hover:border-orange-300 hover:text-orange-600"
                       >
                         <FiEdit3 className="mr-1.5 h-3.5 w-3.5" />
