@@ -1,125 +1,79 @@
-import { Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
+// Layout
+// import MainLayout from "./components/MainLayout";
 
+// Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ProductDetails from "./pages/ProductDetails";
-import Cart from "./pages/Cart";
-import Address from "./pages/Address";
-import Checkout from "./pages/Checkout";
-import Orders from "./pages/Orders";
-import Profile from "./pages/Profile";
+import MainLayout from "./components/layouts/MainLayout";
+import AddItem from "./components/admin/AddItem";
 
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminOrders from "./pages/admin/AdminOrders";
+// Optional
+// import ProtectedRoute from "./components/ProtectedRoute";
+// import Dashboard from "./pages/Dashboard";
+// import AdminDashboard from "./pages/AdminDashboard";
+
+const router = createBrowserRouter([
+  // Public Layout
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <Home /> },
+
+      // Add more public pages here
+      // { path: "about", element: <About /> },
+      // { path: "contact", element: <Contact /> },
+    ],
+  },
+
+  // Authentication
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/admin/items/add",
+    element: <AddItem />,
+  },
+
+  // User Protected Routes
+  // {
+  //   element: <ProtectedRoute allowedRoles={["user"]} />,
+  //   children: [
+  //     {
+  //       path: "/dashboard",
+  //       element: <Dashboard />,
+  //     },
+  //   ],
+  // },
+
+  // Admin Protected Routes
+  // {
+  //   element: <ProtectedRoute allowedRoles={["admin"]} />,
+  //   children: [
+  //     {
+  //       path: "/admin",
+  //       element: <AdminDashboard />,
+  //     },
+  //   ],
+  // },
+
+  // 404
+  {
+    path: "*",
+    element: <h1 className="text-center text-3xl mt-20">404 Page Not Found</h1>,
+  },
+]);
 
 function App() {
-  return (
-    <>
-      <Navbar />
-
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-
-        {/* User Protected Routes */}
-        <Route
-          path="/cart"
-          element={
-            <ProtectedRoute>
-              <Cart />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/address"
-          element={
-            <ProtectedRoute>
-              <Address />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute>
-              <Orders />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin/products"
-          element={
-            <AdminRoute>
-              <AdminProducts />
-            </AdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin/categories"
-          element={
-            <AdminRoute>
-              <AdminCategories />
-            </AdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin/orders"
-          element={
-            <AdminRoute>
-              <AdminOrders />
-            </AdminRoute>
-          }
-        />
-      </Routes>
-
-      <Footer />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
-
 
 export default App;

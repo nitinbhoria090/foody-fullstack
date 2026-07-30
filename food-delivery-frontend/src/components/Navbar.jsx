@@ -1,69 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import "./css/Navbar.css";
+import axios from "axios";
+import { getData } from "@/context/userContext";
 
-/* ---------- tiny inline icon set (no external deps) ---------- */
-const Icon = {
-  Search: (p) => (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <circle cx="11" cy="11" r="7" />
-      <path d="M21 21l-4.3-4.3" />
-    </svg>
-  ),
-  Cart: (p) => (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <circle cx="9" cy="21" r="1.5" />
-      <circle cx="18" cy="21" r="1.5" />
-      <path d="M2.5 3h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 7H6" />
-    </svg>
-  ),
-  Bell: (p) => (
-    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <path d="M18 8a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6" />
-      <path d="M10.3 21a1.9 1.9 0 0 0 3.4 0" />
-    </svg>
-  ),
-  User: (p) => (
-    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6" />
-    </svg>
-  ),
-  Close: (p) => (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <path d="M18 6L6 18M6 6l12 12" />
-    </svg>
-  ),
-  Clock: (p) => (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 3" />
-    </svg>
-  ),
-  Bike: (p) => (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <circle cx="5.5" cy="17.5" r="3.5" />
-      <circle cx="18.5" cy="17.5" r="3.5" />
-      <path d="M5.5 17.5L9 8h4l3 5h3.5M9 8L7 5H5" />
-    </svg>
-  ),
-  Grid: (p) => (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" {...p}>
-      <rect x="3" y="3" width="7" height="7" rx="1.5" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </svg>
-  ),
-};
+/* ---------- react-icons replacement ---------- */
+import {
+  FiSearch,
+  FiShoppingCart,
+  FiBell,
+  FiUser,
+  FiClock,
+  FiGrid,
+  FiMenu,
+  FiX,
+} from "react-icons/fi";
+import { MdOutlineDirectionsBike } from "react-icons/md"; // Bike icon from Material Design icons
 
 /* ---------- nav link sets per role ---------- */
 const NAV_LINKS = {
-  // customer: [
-  //   { label: "Restaurants", to: "/restaurants" },
-  //   { label: "Offers", to: "/offers" },
-  //   { label: "Order History", to: "/orders" },
-  // ],
+  customer: [
+    { label: "Restaurants", to: "/customer/browse" },
+    { label: "Offers", to: "/offers" },
+    { label: "Order History", to: "/order_history" },
+  ],
   rider: [
     { label: "Dashboard", to: "/rider/dashboard" },
     { label: "Available Orders", to: "/rider/available" },
@@ -81,10 +40,15 @@ const NAV_LINKS = {
 };
 
 const ROLE_META = {
-  customer: { label: "Customer", icon: Icon.Cart },
-  rider: { label: "Rider", icon: Icon.Bike },
-  admin: { label: "Admin", icon: Icon.Grid },
+  customer: { label: "Customer", icon: FiShoppingCart },
+  rider: { label: "Rider", icon: MdOutlineDirectionsBike },
+  admin: { label: "Admin", icon: FiGrid },
 };
+
+const authHeaders = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+  withCredentials: true,
+});
 
 function useOutsideClose(onClose) {
   const ref = useRef(null);
@@ -101,27 +65,12 @@ function useOutsideClose(onClose) {
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, setUser } = getData();
 
-  const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("user");
-      if (stored) setUser(JSON.parse(stored));
-
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const count = Array.isArray(cart)
-        ? cart.reduce((sum, item) => sum + (item.qty || 1), 0)
-        : 0;
-      setCartCount(count);
-    } catch {
-      setUser(null);
-    }
-  }, [location.pathname]);
 
   const role = user?.role && NAV_LINKS[user.role] ? user.role : "customer";
   const links = NAV_LINKS[role];
@@ -130,52 +79,99 @@ function Navbar() {
 
   const profileRef = useOutsideClose(() => setProfileOpen(false));
 
+  const fetchCartCount = useCallback(async () => {
+    if (role !== "customer" || !localStorage.getItem("accessToken")) {
+      setCartCount(0);
+      return;
+    }
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/cart`,
+        authHeaders(),
+      );
+      if (res.data?.success) setCartCount(res.data.cart?.totalItems || 0);
+    } catch (_) {
+      /* keep last known count */
+    }
+  }, [role]);
+
+  useEffect(() => {
+    fetchCartCount();
+  }, [fetchCartCount, location.pathname]);
+
+  useEffect(() => {
+    window.addEventListener("cart-updated", fetchCartCount);
+    return () => window.removeEventListener("cart-updated", fetchCartCount);
+  }, [fetchCartCount]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+    setProfileOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     setUser(null);
     setProfileOpen(false);
+    window.dispatchEvent(new Event("cart-updated"));
     navigate("/login");
   };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (query.trim()) navigate(`/restaurants?search=${encodeURIComponent(query.trim())}`);
+    if (query.trim()) {
+      navigate("/customer/browse", { state: { initialSearch: query.trim() } });
+      setQuery("");
+      setMobileOpen(false);
+    }
   };
 
-  const homeTo = role === "admin" ? "/admin/dashboard" : role === "rider" ? "/rider/dashboard" : "/";
+  const homeTo =
+    role === "admin" ? "/admin/dashboard" : role === "rider" ? "/rider/dashboard" : "/";
 
   return (
-    <nav style={styles.nav}>
-      <div style={styles.inner}>
-        {/* left: brand + mobile toggle */}
-        <div style={styles.left}>
-                   <Link to={homeTo} style={styles.brand}>
-            <span style={styles.brandMark}>F</span>
-            <span style={styles.brandText}>
-              Forkly<span style={{ color: COLORS.accent }}>.</span>
+    <nav className="sticky top-0 z-50 bg-neutral-950 text-orange-50 border-b border-neutral-800 font-sans">
+      <div className="max-w-7xl mx-auto px-3 sm:px-5 h-16 flex items-center justify-between gap-2 sm:gap-4">
+        {/* ── left: brand + role pill + mobile toggle ── */}
+        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 shrink">
+          {/* <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-orange-50 hover:bg-neutral-900 shrink-0"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
+          </button> */}
+
+          <Link to={homeTo} className="flex items-center gap-2 no-underline min-w-0 shrink-0">
+            <span className="w-[30px] h-[30px] rounded-lg bg-orange-500 text-white flex items-center justify-center font-extrabold text-base shrink-0">
+              F
+            </span>
+            <span className="text-orange-50 font-extrabold text-lg tracking-tight whitespace-nowrap">
+              Forkly<span className="text-orange-500">.</span>
             </span>
           </Link>
 
           {user && (
-            <span style={styles.rolePill}>
-              <RoleIcon />
+            <span className="hidden sm:flex items-center gap-1.5 bg-orange-950/60 text-orange-400 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shrink-0">
+              <RoleIcon className="w-3.5 h-3.5" />
               {meta.label}
             </span>
           )}
         </div>
 
-        {/* center: nav links (desktop) + search for customers */}
-        {/* <div style={styles.center} className="navbar-desktop-only">
-          <ul style={styles.linkList}>
+        {/* ── center: nav links + search (desktop only) ── */}
+        <div className="hidden md:flex items-center gap-7 flex-1 justify-center">
+          <ul className="flex list-none gap-6 m-0 p-0">
             {links.map((l) => (
               <li key={l.to}>
                 <Link
                   to={l.to}
-                  style={{
-                    ...styles.link,
-                    ...(location.pathname === l.to ? styles.linkActive : {}),
-                  }}
+                  className={`text-sm font-semibold no-underline transition-colors ${
+                    location.pathname === l.to
+                      ? "text-orange-50"
+                      : "text-neutral-400 hover:text-orange-50"
+                  }`}
                 >
                   {l.label}
                 </Link>
@@ -184,95 +180,145 @@ function Navbar() {
           </ul>
 
           {role === "customer" && (
-            <form onSubmit={handleSearchSubmit} style={styles.searchForm}>
-              <Icon.Search style={{ color: COLORS.textMuted }} />
+            <form
+              onSubmit={handleSearchSubmit}
+              className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-full px-3.5 py-2 w-64"
+            >
+              <FiSearch className="w-4 h-4 text-neutral-500 shrink-0" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search restaurants or dishes"
-                style={styles.searchInput}
+                className="bg-transparent border-none outline-none text-orange-50 text-sm w-full placeholder:text-neutral-500"
               />
             </form>
           )}
-        </div> */}
+        </div>
 
-        {/* right: actions */}
-        <div style={styles.right}>
+        {/* ── right: actions ── */}
+        <div className="flex items-center gap-2.5">
           {!user ? (
-            <div style={styles.authButtons}>
-              <Link to="/login" style={styles.loginLink}>
+            <div className="flex items-center gap-2.5">
+              <Link
+                to="/login"
+                className="text-orange-50 no-underline text-sm font-semibold hover:text-orange-400"
+              >
                 Log in
               </Link>
-              <Link to="/register" style={styles.signupBtn}>
+              <Link
+                to="/register"
+                className="bg-orange-500 hover:bg-orange-600 text-white no-underline text-sm font-bold px-4 py-2 rounded-full transition-colors"
+              >
                 Sign up
               </Link>
             </div>
           ) : (
             <>
               {role === "customer" && (
-                <Link to="/cart" style={styles.cartBtn} aria-label="Cart">
-                  <Icon.Cart />
-                  {cartCount > 0 && <span style={styles.cartBadge}>{cartCount}</span>}
+                <Link
+                  to="/cart"
+                  aria-label="Cart"
+                  className="relative w-9.5 h-9.5 rounded-lg flex items-center justify-center text-orange-50 hover:bg-neutral-900 no-underline"
+                >
+                  <FiShoppingCart className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-orange-500 text-white text-[10px] font-extrabold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">
+                      {cartCount > 99 ? "99+" : cartCount}
+                    </span>
+                  )}
                 </Link>
               )}
 
-              <button style={styles.iconBtn} aria-label="Notifications">
-                <Icon.Bell />
+              <button
+                aria-label="Notifications"
+                className="w-9.5 h-9.5 rounded-lg flex items-center justify-center text-orange-50 hover:bg-neutral-900"
+              >
+                <FiBell className="w-4.5 h-4.5" />
               </button>
 
-              <div style={styles.profileWrap} ref={profileRef}>
+              <div className="relative" ref={profileRef}>
                 <button
-                  style={styles.profileBtn}
                   onClick={() => setProfileOpen((v) => !v)}
                   aria-haspopup="true"
                   aria-expanded={profileOpen}
+                  className="flex items-center gap-2 bg-transparent border-none cursor-pointer text-orange-50 px-2 py-1.5 rounded-full hover:bg-neutral-900"
                 >
-                  <span style={styles.avatar}>
-                    {user.name ? user.name.charAt(0).toUpperCase() : <Icon.User />}
+                  <span className="w-7.5 h-7.5 rounded-full bg-orange-950/60 text-orange-400 flex items-center justify-center font-extrabold text-sm">
+                    {user.name || user.username ? (
+                      (user.name || user.username).charAt(0).toUpperCase()
+                    ) : (
+                      <FiUser className="w-4 h-4" />
+                    )}
                   </span>
-                  <span style={styles.profileName} className="navbar-desktop-only">
-                    {user.name?.split(" ")[0] || "Account"}
+                  <span className="hidden md:inline text-sm font-semibold">
+                    {(user.name || user.username || "Account").split(" ")[0]}
                   </span>
-                  {/* <Icon.Chevron style={{ color: COLORS.textMuted }} /> */}
                 </button>
 
                 {profileOpen && (
-                  <div style={styles.dropdown}>
-                    <div style={styles.dropdownHeader}>
-                      <span style={styles.dropdownName}>{user.name}</span>
-                      <span style={styles.dropdownEmail}>{user.email}</span>
+                  <div className="absolute top-[calc(100%+10px)] right-0 w-56 bg-neutral-900 border border-neutral-800 rounded-xl p-2 shadow-2xl">
+                    <div className="flex flex-col px-2.5 pt-2 pb-2.5">
+                      <span className="text-sm font-bold text-orange-50">
+                        {user.name || user.username}
+                      </span>
+                      <span className="text-xs text-neutral-400 mt-0.5">
+                        {user.email}
+                      </span>
                     </div>
-                    <div style={styles.dropdownDivider} />
+                    <div className="h-px bg-neutral-800 my-1" />
 
-                    <Link to="/profile" style={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
-                      <Icon.User /> My Profile
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-orange-50 no-underline text-sm font-medium hover:bg-neutral-800"
+                    >
+                      <FiUser className="w-4 h-4" /> My Profile
                     </Link>
 
                     {role === "customer" && (
                       <>
-                        <Link to="/orders" style={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
-                          <Icon.Clock /> Order History
+                        <Link
+                          to="/order_history"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-orange-50 no-underline text-sm font-medium hover:bg-neutral-800"
+                        >
+                          <FiClock className="w-4 h-4" /> Order History
                         </Link>
-                        <Link to="/cart" style={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
-                          <Icon.Cart /> My Cart
+                        <Link
+                          to="/cart"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-orange-50 no-underline text-sm font-medium hover:bg-neutral-800"
+                        >
+                          <FiShoppingCart className="w-4 h-4" /> My Cart
                         </Link>
                       </>
                     )}
 
                     {role === "rider" && (
-                      <Link to="/rider/deliveries" style={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
-                        <Icon.Bike /> My Deliveries
+                      <Link
+                        to="/rider/deliveries"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-orange-50 no-underline text-sm font-medium hover:bg-neutral-800"
+                      >
+                        <MdOutlineDirectionsBike className="w-4 h-4" /> My Deliveries
                       </Link>
                     )}
 
                     {role === "admin" && (
-                      <Link to="/admin/dashboard" style={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
-                        <Icon.Grid /> Admin Dashboard
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-orange-50 no-underline text-sm font-medium hover:bg-neutral-800"
+                      >
+                        <FiGrid className="w-4 h-4" /> Admin Dashboard
                       </Link>
                     )}
 
-                    <div style={styles.dropdownDivider} />
-                    <button style={styles.dropdownLogout} onClick={handleLogout}>
+                    <div className="h-px bg-neutral-800 my-1" />
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left bg-transparent border-none text-orange-400 text-sm font-bold px-2.5 py-2 rounded-lg cursor-pointer hover:bg-neutral-800"
+                    >
                       Logout
                     </button>
                   </div>
@@ -283,24 +329,31 @@ function Navbar() {
         </div>
       </div>
 
-      {/* mobile panel */}
-      {/* {mobileOpen && (
-        <div style={styles.mobilePanel}>
+      {/* ── mobile panel ── */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-neutral-800 px-5 pt-3.5 pb-5">
           {role === "customer" && (
-            <form onSubmit={handleSearchSubmit} style={{ ...styles.searchForm, marginBottom: 12 }}>
-              <Icon.Search style={{ color: COLORS.textMuted }} />
+            <form
+              onSubmit={handleSearchSubmit}
+              className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-full px-3.5 py-2 mb-3"
+            >
+              <FiSearch className="w-4 h-4 text-neutral-500 shrink-0" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search restaurants or dishes"
-                style={styles.searchInput}
+                className="bg-transparent border-none outline-none text-orange-50 text-sm w-full placeholder:text-neutral-500"
               />
             </form>
           )}
-          <ul style={styles.mobileLinkList}>
+          <ul className="list-none m-0 p-0 flex flex-col gap-1">
             {links.map((l) => (
               <li key={l.to}>
-                <Link to={l.to} style={styles.mobileLink} onClick={() => setMobileOpen(false)}>
+                <Link
+                  to={l.to}
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-2 py-2.5 text-orange-50 no-underline text-[15px] font-semibold rounded-lg hover:bg-neutral-900"
+                >
                   {l.label}
                 </Link>
               </li>
@@ -308,12 +361,20 @@ function Navbar() {
             {!user && (
               <>
                 <li>
-                  <Link to="/login" style={styles.mobileLink} onClick={() => setMobileOpen(false)}>
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-2 py-2.5 text-orange-50 no-underline text-[15px] font-semibold rounded-lg hover:bg-neutral-900"
+                  >
                     Log in
                   </Link>
                 </li>
                 <li>
-                  <Link to="/register" style={styles.mobileLink} onClick={() => setMobileOpen(false)}>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-2 py-2.5 text-orange-50 no-underline text-[15px] font-semibold rounded-lg hover:bg-neutral-900"
+                  >
                     Sign up
                   </Link>
                 </li>
@@ -321,230 +382,9 @@ function Navbar() {
             )}
           </ul>
         </div>
-      )} */}
+      )}
     </nav>
   );
 }
-
-/* ---------- design tokens ---------- */
-const COLORS = {
-  bg: "#1c1410",
-  bgLight: "#241a14",
-  accent: "#ff5a1f",
-  accentSoft: "#3a2416",
-  text: "#fdf6ee",
-  textMuted: "#b8a897",
-  border: "#3a2c22",
-};
-
-const styles = {
-  nav: {
-    background: COLORS.bg,
-    color: COLORS.text,
-    fontFamily: "system-ui, -apple-system, sans-serif",
-    position: "sticky",
-    top: 0,
-    zIndex: 50,
-    borderBottom: `1px solid ${COLORS.border}`,
-  },
-  inner: {
-    maxWidth: 1280,
-    margin: "0 auto",
-    padding: "0 20px",
-    height: 64,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-  },
-  left: { display: "flex", alignItems: "center", gap: 14 },
-  center: { display: "flex", alignItems: "center", gap: 28, flex: 1, justifyContent: "center" },
-  right: { display: "flex", alignItems: "center", gap: 10 },
-
-  brand: { display: "flex", alignItems: "center", gap: 8, textDecoration: "none" },
-  brandMark: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    background: COLORS.accent,
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 800,
-    fontSize: 16,
-  },
-  brandText: { color: COLORS.text, fontWeight: 800, fontSize: 19, letterSpacing: -0.3 },
-
-  rolePill: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    background: COLORS.accentSoft,
-    color: COLORS.accent,
-    fontSize: 12,
-    fontWeight: 700,
-    padding: "5px 10px",
-    borderRadius: 999,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
-  },
-
-  linkList: { display: "flex", listStyle: "none", gap: 22, margin: 0, padding: 0 },
-  link: { color: COLORS.textMuted, textDecoration: "none", fontSize: 14.5, fontWeight: 600 },
-  linkActive: { color: COLORS.text },
-
-  searchForm: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    background: COLORS.bgLight,
-    border: `1px solid ${COLORS.border}`,
-    borderRadius: 999,
-    padding: "8px 14px",
-    width: 260,
-  },
-  searchInput: {
-    background: "transparent",
-    border: "none",
-    outline: "none",
-    color: COLORS.text,
-    fontSize: 13.5,
-    width: "100%",
-  },
-
-  authButtons: { display: "flex", alignItems: "center", gap: 10 },
-  loginLink: { color: COLORS.text, textDecoration: "none", fontSize: 14, fontWeight: 600 },
-  signupBtn: {
-    background: COLORS.accent,
-    color: "#fff",
-    textDecoration: "none",
-    fontSize: 14,
-    fontWeight: 700,
-    padding: "9px 16px",
-    borderRadius: 999,
-  },
-
-  iconBtn: {
-    background: "transparent",
-    border: "none",
-    color: COLORS.text,
-    cursor: "pointer",
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  cartBtn: {
-    position: "relative",
-    color: COLORS.text,
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    textDecoration: "none",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -2,
-    right: -2,
-    background: COLORS.accent,
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: 800,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 999,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "0 3px",
-  },
-
-  profileWrap: { position: "relative" },
-  profileBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    color: COLORS.text,
-    padding: "6px 8px",
-    borderRadius: 999,
-  },
-  avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: "50%",
-    background: COLORS.accentSoft,
-    color: COLORS.accent,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 800,
-    fontSize: 13,
-  },
-  profileName: { fontSize: 13.5, fontWeight: 600 },
-
-  dropdown: {
-    position: "absolute",
-    top: "calc(100% + 10px)",
-    right: 0,
-    width: 230,
-    background: COLORS.bgLight,
-    border: `1px solid ${COLORS.border}`,
-    borderRadius: 12,
-    padding: 8,
-    boxShadow: "0 12px 30px rgba(0,0,0,0.35)",
-  },
-  dropdownHeader: { display: "flex", flexDirection: "column", padding: "8px 10px 10px" },
-  dropdownName: { fontSize: 14, fontWeight: 700, color: COLORS.text },
-  dropdownEmail: { fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
-  dropdownDivider: { height: 1, background: COLORS.border, margin: "4px 0" },
-  dropdownItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    padding: "9px 10px",
-    borderRadius: 8,
-    color: COLORS.text,
-    textDecoration: "none",
-    fontSize: 13.5,
-    fontWeight: 500,
-  },
-  dropdownLogout: {
-    width: "100%",
-    textAlign: "left",
-    background: "transparent",
-    border: "none",
-    color: "#ff7a5c",
-    fontSize: 13.5,
-    fontWeight: 700,
-    padding: "9px 10px",
-    borderRadius: 8,
-    cursor: "pointer",
-  },
-
-  mobilePanel: {
-    borderTop: `1px solid ${COLORS.border}`,
-    padding: "14px 20px 20px",
-  },
-  mobileLinkList: { listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 4 },
-  mobileLink: {
-    display: "block",
-    padding: "10px 8px",
-    color: COLORS.text,
-    textDecoration: "none",
-    fontSize: 15,
-    fontWeight: 600,
-    borderRadius: 8,
-  },
-};
 
 export default Navbar;

@@ -1,0 +1,317 @@
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+import { FiUploadCloud, FiX, FiArrowLeft, FiCheck } from "react-icons/fi";
+import { CgSpinner } from "react-icons/cg";
+import { toast } from "sonner"; // ⚠️ swap for your actual toast lib if different
+
+const authHeaders = () => ({
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    "Content-Type": "multipart/form-data",
+  },
+  withCredentials: true,
+});
+
+const AddItem = () => {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "", // "veg" | "non-veg"
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: null }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setErrors((prev) => ({ ...prev, image: null }));
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = "Name is required";
+    if (!form.description.trim()) newErrors.description = "Description is required";
+    if (!form.price || Number(form.price) <= 0) newErrors.price = "Enter a valid price";
+    if (!form.category) newErrors.category = "Please select Veg or Non-Veg";
+    if (!imageFile) newErrors.image = "Image is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setSubmitting(true);
+
+      const formData = new FormData();
+      formData.append("name", form.name.trim());
+      formData.append("description", form.description.trim());
+      formData.append("price", form.price);
+      formData.append("category", form.category); // "veg" or "non-veg"
+      formData.append("image", imageFile); // must match multer's upload.single("image")
+
+      // ⚠️ ADJUST: swap for your actual "add product" endpoint
+      const res = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/products/add`,
+        formData,
+        authHeaders()
+      );
+
+      if (res.data.success) {
+        toast.success("Item added successfully");
+        navigate("/admin/items"); // ⚠️ ADJUST route to your items list page
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to add item");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-stone-50 pb-20 font-sans overflow-x-hidden">
+      {/* ── Header ── */}
+      <div className="relative bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 px-4 pt-6 pb-8 shadow-md">
+        <div className="mx-auto max-w-3xl">
+          <button
+            onClick={() => navigate(-1)}
+            className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-orange-100 hover:text-white"
+          >
+            <FiArrowLeft className="h-3.5 w-3.5" />
+            Back
+          </button>
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+            Add New Item
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-orange-100">
+            Fill in the details below to add a new item to your menu
+          </p>
+        </div>
+      </div>
+
+      {/* ── Form ── */}
+      <div className="mx-auto max-w-3xl px-4 pt-6">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-2xl border border-stone-200/80 bg-white p-5 sm:p-7 shadow-sm space-y-6"
+        >
+          {/* Image Upload */}
+          <div>
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-stone-700">
+              Item Image
+            </label>
+
+            {imagePreview ? (
+              <div className="relative h-44 w-full sm:w-56 overflow-hidden rounded-2xl border border-stone-200">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                >
+                  <FiX className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <label
+                htmlFor="image-upload"
+                className={`flex h-44 w-full sm:w-56 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed ${
+                  errors.image ? "border-red-300 bg-red-50" : "border-stone-300 bg-stone-50"
+                } text-center transition-colors hover:border-orange-400 hover:bg-orange-50`}
+              >
+                <FiUploadCloud className="h-7 w-7 text-stone-400" />
+                <span className="px-4 text-xs font-semibold text-stone-500">
+                  Click to upload image
+                </span>
+                <span className="text-[10px] text-stone-400">PNG, JPG up to 5MB</span>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            )}
+            {errors.image && (
+              <p className="mt-1.5 text-xs font-medium text-red-500">{errors.image}</p>
+            )}
+          </div>
+
+          {/* Name */}
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-700">
+              Item Name
+            </label>
+            <Input
+              value={form.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+              placeholder="e.g. Paneer Butter Masala"
+              className={`h-11 rounded-xl ${errors.name ? "border-red-300" : "border-stone-200"}`}
+            />
+            {errors.name && (
+              <p className="mt-1.5 text-xs font-medium text-red-500">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-700">
+              Description
+            </label>
+            <Textarea
+              value={form.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+              placeholder="Briefly describe the item..."
+              rows={4}
+              className={`resize-none rounded-xl ${
+                errors.description ? "border-red-300" : "border-stone-200"
+              }`}
+            />
+            {errors.description && (
+              <p className="mt-1.5 text-xs font-medium text-red-500">{errors.description}</p>
+            )}
+          </div>
+
+          {/* Price */}
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-700">
+              Price (₹)
+            </label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.price}
+              onChange={(e) => handleChange("price", e.target.value)}
+              placeholder="e.g. 249"
+              className={`h-11 max-w-xs rounded-xl ${
+                errors.price ? "border-red-300" : "border-stone-200"
+              }`}
+            />
+            {errors.price && (
+              <p className="mt-1.5 text-xs font-medium text-red-500">{errors.price}</p>
+            )}
+          </div>
+
+          {/* Veg / Non-Veg Toggle */}
+          <div>
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-stone-700">
+              Item Type
+            </label>
+
+            <div className="grid grid-cols-2 gap-3 max-w-sm">
+              {/* Veg */}
+              <button
+                type="button"
+                onClick={() => handleChange("category", "veg")}
+                className={`relative flex items-center gap-2.5 rounded-xl border-2 p-3.5 text-left transition-all ${
+                  form.category === "veg"
+                    ? "border-emerald-600 bg-emerald-50"
+                    : "border-stone-200 bg-white hover:border-emerald-300"
+                }`}
+              >
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border-2 border-emerald-600 bg-white">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
+                </span>
+                <span className="text-sm font-bold text-stone-800">Veg</span>
+                {form.category === "veg" && (
+                  <FiCheck className="absolute right-2.5 top-2.5 h-4 w-4 text-emerald-600" />
+                )}
+              </button>
+
+              {/* Non-Veg */}
+              <button
+                type="button"
+                onClick={() => handleChange("category", "non-veg")}
+                className={`relative flex items-center gap-2.5 rounded-xl border-2 p-3.5 text-left transition-all ${
+                  form.category === "non-veg"
+                    ? "border-red-600 bg-red-50"
+                    : "border-stone-200 bg-white hover:border-red-300"
+                }`}
+              >
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border-2 border-red-600 bg-white">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
+                </span>
+                <span className="text-sm font-bold text-stone-800">Non-Veg</span>
+                {form.category === "non-veg" && (
+                  <FiCheck className="absolute right-2.5 top-2.5 h-4 w-4 text-red-600" />
+                )}
+              </button>
+            </div>
+
+            {errors.category && (
+              <p className="mt-1.5 text-xs font-medium text-red-500">{errors.category}</p>
+            )}
+          </div>
+
+          {/* Submit */}
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="h-11 rounded-xl border-stone-200 text-sm font-semibold text-stone-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="h-11 rounded-xl bg-orange-600 text-sm font-semibold text-white hover:bg-orange-700"
+            >
+              {submitting ? (
+                <>
+                  <CgSpinner className="mr-2 h-4 w-4 animate-spin" />
+                  Adding Item...
+                </>
+              ) : (
+                "Add Item"
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AddItem;
