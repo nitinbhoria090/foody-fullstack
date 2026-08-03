@@ -19,9 +19,8 @@ import { MdOutlineDirectionsBike } from "react-icons/md"; // Bike icon from Mate
 /* ---------- nav link sets per role ---------- */
 const NAV_LINKS = {
   customer: [
-    { label: "Restaurants", to: "/customer/browse" },
     { label: "Offers", to: "/offers" },
-    { label: "Order History", to: "/order_history" },
+    { label: "Order History", to: "/orders_history" },
   ],
   rider: [
     { label: "Dashboard", to: "/rider/dashboard" },
@@ -278,7 +277,7 @@ function Navbar() {
                     {role === "customer" && (
                       <>
                         <Link
-                          to="/order_history"
+                          to="/orders_history"
                           onClick={() => setProfileOpen(false)}
                           className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-orange-50 no-underline text-sm font-medium hover:bg-neutral-800"
                         >

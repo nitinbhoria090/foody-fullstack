@@ -4,78 +4,42 @@ const Product = require("../models/Product");
 // Add to Cart
 const addToCart = async (req, res) => {
     try {
-
         const { productId, quantity } = req.body;
 
-        if (!productId) {
-            return res.status(400).json({
-                success: false,
-                message: "Product ID is required"
-            });
-        }
-
-        // Check Product
-        const product = await Product.findById(productId);
-
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product not found"
-            });
-        }
-
-        if (!product.isAvailable) {
-            return res.status(400).json({
-                success: false,
-                message: "Product is not available"
-            });
-        }
-
-        // Find User Cart
         let cart = await Cart.findOne({ user: req.user.id });
 
         if (!cart) {
-            cart = await Cart.create({
+            cart = new Cart({
                 user: req.user.id,
-                items: []
+                items: [],
             });
         }
 
-        // Check if product already exists
-        const itemIndex = cart.items.findIndex(
-            item => item.product.toString() === productId
+        const index = cart.items.findIndex(
+            (item) => item.product.toString() === productId
         );
 
-        if (itemIndex > -1) {
-
-            cart.items[itemIndex].quantity += quantity || 1;
-
+        if (index > -1) {
+            cart.items[index].quantity += quantity;
         } else {
-
             cart.items.push({
                 product: productId,
-                quantity: quantity || 1
+                quantity,
             });
-
         }
 
         await cart.save();
 
-        res.status(200).json({
+        res.json({
             success: true,
-            message: "Product added to cart",
-            cart
+            message: "Item added to cart",
+            cart,
         });
-
-    } catch (error) {
-
-        console.error(error);
-
+    } catch (err) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: err.message,
         });
-
     }
 };
 // Get User Cart

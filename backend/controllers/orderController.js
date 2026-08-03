@@ -129,13 +129,11 @@ const getMyOrders = async (req, res) => {
 
 };
 const getOrderById = async (req, res) => {
-
     try {
-
         const order = await Order.findOne({
-    _id: req.params.id,
-    user: req.user.id
-});
+            _id: req.params.id,
+            user: req.user.id
+        }).populate("address"); // ← yeh add karo
 
         if (!order) {
             return res.status(404).json({
@@ -148,16 +146,12 @@ const getOrderById = async (req, res) => {
             success: true,
             order
         });
-
     } catch (error) {
-
         res.status(500).json({
             success: false,
             message: error.message
         });
-
     }
-
 };
 // Update Order Status
 

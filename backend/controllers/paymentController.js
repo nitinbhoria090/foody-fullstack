@@ -7,12 +7,22 @@ const createPaymentOrder = async (req, res) => {
 
         const { orderId } = req.body;
 
-        const order = await Order.findById(orderId);
+        const order = await Order.findOne({
+            _id: orderId,
+            user: req.user.id
+        });
 
         if (!order) {
             return res.status(404).json({
                 success: false,
                 message: "Order not found"
+            });
+        }
+
+        if (order.paymentStatus === "Paid") {
+            return res.status(400).json({
+                success: false,
+                message: "Order already paid"
             });
         }
 
@@ -69,7 +79,17 @@ const verifyPayment = async (req, res) => {
 
         }
 
-        const order = await Order.findById(orderId);
+        const order = await Order.findOne({
+            _id: orderId,
+            user: req.user.id
+        });
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
 
         order.paymentStatus = "Paid";
 

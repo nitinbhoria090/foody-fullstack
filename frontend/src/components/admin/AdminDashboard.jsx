@@ -34,50 +34,52 @@ const AdminDashboard = () => {
   const [loadingOrders, setLoadingOrders] = useState(true);
 
   /* ---------- Fetch all items belonging to this restaurant ---------- */
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        setLoadingItems(true);
-        // ⚠️ ADJUST: swap for your actual "get my items" endpoint
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/v1/restaurant/food/my-items`,
-          authHeaders()
-        );
-        if (res.data.success) setItems(res.data.data || []);
-      } catch (err) {
-        // Silently fail to keep dashboard usable
-      } finally {
-        setLoadingItems(false);
-      }
-    };
-    fetchItems();
-  }, []);
+  /* ---------- Fetch all items ---------- */
+useEffect(() => {
+  const fetchItems = async () => {
+    try {
+      setLoadingItems(true);
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/products`,
+        authHeaders()
+      );
+      if (res.data.success) setItems(res.data.data || res.data.products || []);
+    } catch (err) {
+      console.error("Failed to fetch items:", err.response?.data || err.message);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+  fetchItems();
+}, []);
 
-  /* ---------- Fetch orders for this restaurant ---------- */
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoadingOrders(true);
-        // ⚠️ ADJUST: swap for your actual "get restaurant orders" endpoint
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/v1/order/restaurant`,
-          authHeaders()
-        );
-        if (res.data.success) setOrders(res.data.orders || []);
-      } catch (err) {
-        // Silently fail
-      } finally {
-        setLoadingOrders(false);
-      }
-    };
-    fetchOrders();
-  }, []);
+/* ---------- Fetch orders ---------- */
+useEffect(() => {
+  const fetchOrders = async () => {
+    try {
+      setLoadingOrders(true);
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/orders`,
+        authHeaders()
+      );
+      if (res.data.success) setOrders(res.data.orders || res.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch orders:", err.response?.data || err.message);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+  fetchOrders();
+}, []);
 
-  const vegItems = items.filter((i) => i.isVeg === true || i.foodType === "veg");
-  const nonVegItems = items.filter((i) => i.isVeg === false || i.foodType === "non-veg");
-
+  const vegItems = items.filter(
+  (i) => i.isVeg === true || i.foodType?.toLowerCase() === "veg"
+);
+const nonVegItems = items.filter(
+  (i) => i.isVeg === false || i.foodType?.toLowerCase() === "non-veg"
+);
   const pendingOrders = orders.filter(
-    (o) => o.status && !["delivered", "cancelled"].includes(o.status.toLowerCase())
+    (o) => o.orderStatus && !["delivered", "cancelled"].includes(o.orderStatus.toLowerCase())
   );
 
   const displayName =
@@ -240,7 +242,7 @@ const AdminDashboard = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {items.map((item) => {
-                const isVeg = item.isVeg === true || item.foodType === "veg";
+                const isVeg = item.isVeg === true || item.foodType?.toLowerCase() === "veg";
                 return (
                   <div
                     key={item._id}

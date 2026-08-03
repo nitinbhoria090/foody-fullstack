@@ -10,12 +10,15 @@ const {
     getProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductsByCategory
 } = require("../controllers/productController");
 
 // Public Routes
 router.get("/", getProducts);
+router.get("/category/:category", getProductsByCategory);
 router.get("/:id", getProductById);
+
 
 // Admin Routes
 router.post("/add", authMiddleware, adminMiddleware, upload.single("image"), addProduct);

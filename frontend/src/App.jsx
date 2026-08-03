@@ -9,11 +9,18 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MainLayout from "./components/layouts/MainLayout";
 import AddItem from "./components/admin/AddItem";
-
+import CategoryPage from "./components/Customer/categoryPage";
 // Optional
 // import ProtectedRoute from "./components/ProtectedRoute";
 // import Dashboard from "./pages/Dashboard";
 // import AdminDashboard from "./pages/AdminDashboard";
+import ProductDetails from "./components/Customer/ProductDetails";
+import Cart from "./components/Customer/Cart";
+import Orders from "./components/Customer/Orders_history";
+import OrderTracking from "./components/Customer/OrderTracking";
+import Profile from "./components/Customer/Profile";
+import EditItem from "./components/admin/EditItem";
+
 
 const router = createBrowserRouter([
   // Public Layout
@@ -27,6 +34,14 @@ const router = createBrowserRouter([
       // { path: "about", element: <About /> },
       // { path: "contact", element: <Contact /> },
     ],
+  },
+  {
+    path: "/order-tracking/:id",
+    element: <OrderTracking />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
   },
 
   // Authentication
@@ -42,6 +57,26 @@ const router = createBrowserRouter([
     path: "/admin/items/add",
     element: <AddItem />,
   },
+  {
+    path: "/admin/items/edit/:id",
+    element: <EditItem />,
+  },
+  {
+    path: "/category/:category",
+    element: <CategoryPage />
+},
+{
+  path: "/product/:id",
+  element: <ProductDetails />
+},
+{
+  path: "/cart",
+  element: <Cart />
+},
+{
+  path: "/orders_history",
+  element: <Orders />
+},
 
   // User Protected Routes
   // {
@@ -66,6 +101,7 @@ const router = createBrowserRouter([
   // },
 
   // 404
+
   {
     path: "*",
     element: <h1 className="text-center text-3xl mt-20">404 Page Not Found</h1>,
