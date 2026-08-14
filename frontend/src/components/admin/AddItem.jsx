@@ -391,6 +391,7 @@ import { FiUploadCloud, FiX, FiArrowLeft, FiCheck } from "react-icons/fi";
 import { CgSpinner } from "react-icons/cg";
 import { toast } from "sonner";
 
+
 const authHeaders = () => ({
   headers: {
     Authorization: `Bearer ${localStorage.getItem("token")}`,

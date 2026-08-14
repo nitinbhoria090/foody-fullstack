@@ -5,14 +5,12 @@ import { Button } from "@/components/ui/button";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { CgSpinner } from "react-icons/cg";
 
-// 💡 Isko EditItem.jsx ke top par replace karein hamesha ke liye
-const getAuthConfig = () => {
-  // Teeno possible keys check karein (accessToken, Token, token)
-  let token = localStorage.getItem("accessToken") || 
-              localStorage.getItem("Token") || 
-              localStorage.getItem("token");
 
-  // Agar token quotes ke sath saved hai toh string extract karein
+const getAuthConfig = () => {
+
+  let token =   localStorage.getItem("token");
+
+
   if (token && token.startsWith('"') && token.endsWith('"')) {
     token = token.slice(1, -1);
   }

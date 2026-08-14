@@ -1,4 +1,5 @@
 const Address = require("../models/Address");
+const geocodeAddress = require("../utils/geocode");
 
 // Add Address
 const addAddress = async (req, res) => {
@@ -39,6 +40,15 @@ const addAddress = async (req, res) => {
             );
         }
 
+        // Text address ko coordinates mein convert karo
+        const { lat, lng } = await geocodeAddress({
+            addressLine1,
+            city,
+            state,
+            postalCode,
+            country
+        });
+
         const address = await Address.create({
             user: req.user.id,
             fullName,
@@ -50,7 +60,9 @@ const addAddress = async (req, res) => {
             postalCode,
             country,
             addressType,
-            isDefault
+            isDefault,
+            lat,
+            lng
         });
 
         res.status(201).json({
@@ -117,6 +129,23 @@ const updateAddress = async (req, res) => {
                 { user: req.user.id },
                 { isDefault: false }
             );
+        }
+
+        // Agar address text change hua hai toh coordinates bhi update karo
+        const addressChanged =
+            req.body.addressLine1 || req.body.city || req.body.state || req.body.postalCode;
+
+        if (addressChanged) {
+            const { lat, lng } = await geocodeAddress({
+                addressLine1: req.body.addressLine1 || address.addressLine1,
+                city: req.body.city || address.city,
+                state: req.body.state || address.state,
+                postalCode: req.body.postalCode || address.postalCode,
+                country: req.body.country || address.country
+            });
+
+            req.body.lat = lat;
+            req.body.lng = lng;
         }
 
         Object.assign(address, req.body);

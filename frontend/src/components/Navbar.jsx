@@ -23,10 +23,7 @@ const NAV_LINKS = {
     { label: "Order History", to: "/orders_history" },
   ],
   rider: [
-    { label: "Dashboard", to: "/rider/dashboard" },
-    { label: "Available Orders", to: "/rider/available" },
-    { label: "My Deliveries", to: "/rider/deliveries" },
-    { label: "Earnings", to: "/rider/earnings" },
+    { label: "My Deliveries", to: "/rider/panel" },
   ],
   admin: [
     { label: "Dashboard", to: "/admin/dashboard" },
@@ -71,7 +68,8 @@ function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const role = user?.role && NAV_LINKS[user.role] ? user.role : "customer";
+const rawRole = user?.role === "delivery" ? "rider" : user?.role;
+  const role = rawRole && NAV_LINKS[rawRole] ? rawRole : "customer";
   const links = NAV_LINKS[role];
   const meta = ROLE_META[role];
   const RoleIcon = meta.icon;
@@ -79,7 +77,7 @@ function Navbar() {
   const profileRef = useOutsideClose(() => setProfileOpen(false));
 
   const fetchCartCount = useCallback(async () => {
-    if (role !== "customer" || !localStorage.getItem("accessToken")) {
+    if (role !== "customer" || !localStorage.getItem("accessToken || token")) {
       setCartCount(0);
       return;
     }
@@ -90,7 +88,7 @@ function Navbar() {
       );
       if (res.data?.success) setCartCount(res.data.cart?.totalItems || 0);
     } catch (_) {
-      /* keep last known count */
+      
     }
   }, [role]);
 
@@ -109,7 +107,7 @@ function Navbar() {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
     setProfileOpen(false);
@@ -295,14 +293,13 @@ function Navbar() {
 
                     {role === "rider" && (
                       <Link
-                        to="/rider/deliveries"
+                        to="/rider/panel"
                         onClick={() => setProfileOpen(false)}
                         className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-orange-50 no-underline text-sm font-medium hover:bg-neutral-800"
                       >
                         <MdOutlineDirectionsBike className="w-4 h-4" /> My Deliveries
                       </Link>
                     )}
-
                     {role === "admin" && (
                       <Link
                         to="/admin/dashboard"

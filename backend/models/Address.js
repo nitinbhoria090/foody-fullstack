@@ -49,6 +49,16 @@ const addressSchema = new mongoose.Schema(
             default: "India"
         },
 
+        lat: {
+            type: Number,
+            default: null
+        },
+
+        lng: {
+            type: Number,
+            default: null
+        },
+
         addressType: {
             type: String,
             enum: ["Home", "Work", "Other"],

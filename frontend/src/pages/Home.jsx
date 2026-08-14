@@ -1,5 +1,6 @@
-import AdminDashboardPage from "@/components/admin/AdminDashboard";
+import AdminDashboardPage from "../components/admin/AdminDashboard";
 import CustomerHome from "../components/Customer/CustomerHome";
+import RiderDashboard from "../components/Rider/RiderDashboard"; // <-- Added missing import
 import { getData } from "../context/userContext";
 
 const Home = () => {
