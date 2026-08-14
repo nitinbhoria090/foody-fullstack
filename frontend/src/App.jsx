@@ -137,7 +137,7 @@ import RiderDashboard from "./components/Rider/RiderDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminAssignRider from "./components/admin/AdminAssignRider";
-import Adminanalytics from "./components/admin/AdminAnalytics"; // Import AdminAnalytics
+import Adminanalytics from "./components/admin/Adminanalytics"; // Import the Adminanalytics component
 
 const router = createBrowserRouter([
   {
