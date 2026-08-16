@@ -20,11 +20,11 @@
 
 import axios from "axios";
 
-// 1. Live aur Local donon URLs ko support karne ke liye environment variable setup karein
+
 const BASE_URL = import.meta.env.VITE_APP_API_URL || process.env.VITE_APP_API_URL || "http://localhost:5000";
 
 const API = axios.create({
-    // 2. Base URL ke peeche automatically /api jod dega
+  
     baseURL: `${BASE_URL}/api`
 });
 
