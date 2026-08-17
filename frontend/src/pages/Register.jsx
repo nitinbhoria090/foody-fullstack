@@ -29,7 +29,7 @@ function Register() {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/auth/register`,
+        `${process.env.VITE_APP_API_URL}/api/auth/register`,
         form
       );
 

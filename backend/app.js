@@ -15,7 +15,7 @@ const app = express();
 
 app.use(
     cors({
-        origin: "https://foody-fullstack.vercel.app",
+        origin: "https://foody-fullstack-coral.vercel.app",
         credentials: true,
     })
 );

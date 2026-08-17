@@ -91,7 +91,7 @@ const AdminAnalytics = () => {
         setLoadingItems(true);
 
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/api/products`,
+          `${process.env.VITE_APP_API_URL}/api/products`,
           authHeaders()
         );
 
