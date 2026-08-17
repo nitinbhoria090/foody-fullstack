@@ -28,7 +28,7 @@ function Orders_history() {
         try {
             setLoading(true);
 
-            const res = await API.get(`${process.env.VITE_APP_API_URL}/orders/my-orders`, {
+            const res = await API.get(`${import.meta.env.VITE_APP_API_URL}/orders/my-orders`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },

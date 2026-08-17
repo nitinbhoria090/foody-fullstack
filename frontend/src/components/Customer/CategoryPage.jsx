@@ -20,11 +20,11 @@ const fetchProducts = async () => {
 
         console.log(
             "API:",
-            `${process.env.VITE_APP_API_URL}/api/category/${category}`
+            `${import.meta.env.VITE_APP_API_URL}/api/category/${category}`
         );
 
         const res = await axios.get(
-            `${process.env.VITE_APP_API_URL}/api/category/${category}`
+            `${import.meta.env.VITE_APP_API_URL}/api/category/${category}`
         );
 
         console.log(res.data);
