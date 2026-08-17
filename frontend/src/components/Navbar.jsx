@@ -83,7 +83,7 @@ const rawRole = user?.role === "delivery" ? "rider" : user?.role;
     }
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/v1/cart`,
+        `${process.env.VITE_APP_API_URL}/api/v1/cart`,
         authHeaders(),
       );
       if (res.data?.success) setCartCount(res.data.cart?.totalItems || 0);

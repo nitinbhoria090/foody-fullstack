@@ -394,7 +394,7 @@ function CustomerHome() {
 }, []);
 const fetchCartCount = async () => {
     try {
-        const res = await API.get("/cart");
+        const res = await API.get(`${process.env.VITE_APP_API_URL}/cart`);
         if (res.data.success) {
             const count = res.data.cart.items?.reduce(
                 (sum, item) => sum + item.quantity,
@@ -412,7 +412,7 @@ const fetchCartCount = async () => {
         try {
 
             const res = await axios.get(
-                "http://localhost:5000/api/categories"
+                `${process.env.VITE_APP_API_URL}/api/categories`
             );
 
             if (res.data.success) {
@@ -445,7 +445,7 @@ const fetchCartCount = async () => {
         try {
 
             const res = await axios.get(
-                "http://localhost:5000/api/products"
+                `${process.env.VITE_APP_API_URL}/api/products`
             );
 
             if (res.data.success) {
@@ -463,7 +463,7 @@ const fetchCartCount = async () => {
     };
 const addToCart = async (productId) => {
     try {
-        const res = await API.post("/cart/add", {
+        const res = await API.post(`${process.env.VITE_APP_API_URL}/api/cart/add`, {
             productId,
             quantity: 1,
         });

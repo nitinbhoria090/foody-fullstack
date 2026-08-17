@@ -242,7 +242,7 @@ function Login() {
     // =========================
     if (form.loginAs === "rider") {
       const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/riders/login`,
+        `${process.env.VITE_APP_API_URL}/api/riders/login`,
         {
           email: form.email,
           password: form.password,
@@ -270,7 +270,7 @@ function Login() {
     // CUSTOMER / ADMIN LOGIN
     // =========================
     const response = await axios.post(
-      `${import.meta.env.VITE_APP_API_URL}/api/auth/login`,
+      `${process.env.VITE_APP_API_URL}/api/auth/login`,
       {
         email: form.email,
         password: form.password,

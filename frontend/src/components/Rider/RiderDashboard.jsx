@@ -55,9 +55,9 @@ function RiderDashboard() {
             setLoading(true);
 
             const [profileRes, statsRes, ordersRes] = await Promise.all([
-                axios.get("http://localhost:5000/api/riders/profile", authHeaders),
-                axios.get("http://localhost:5000/api/riders/stats", authHeaders),
-                axios.get("http://localhost:5000/api/orders/rider/my-orders", authHeaders)
+                axios.get(`${process.env.VITE_APP_API_URL}/api/riders/profile`, authHeaders),
+                axios.get(`${process.env.VITE_APP_API_URL}/api/riders/stats`, authHeaders),
+                axios.get(`${process.env.VITE_APP_API_URL}/api/orders/rider/my-orders`, authHeaders)
             ]);
 
             if (profileRes.data.success) setRider(profileRes.data.rider);
@@ -81,7 +81,7 @@ function RiderDashboard() {
             setOrdersLoading(true);
 
             const res = await axios.get(
-                "http://localhost:5000/api/orders/rider/orders",
+                `${process.env.VITE_APP_API_URL}/api/orders/rider/orders`,
                 authHeaders
             );
 
@@ -110,7 +110,7 @@ function RiderDashboard() {
             const newStatus = !stats.isAvailable;
 
             const res = await axios.put(
-                "http://localhost:5000/api/riders/availability",
+                `${process.env.VITE_APP_API_URL}/api/riders/availability`,
                 { isAvailable: newStatus },
                 authHeaders
             );
@@ -138,7 +138,7 @@ function RiderDashboard() {
             setDelivering(orderId);
 
             const res = await axios.put(
-                `http://localhost:5000/api/orders/${orderId}/deliver`,
+                `${process.env.VITE_APP_API_URL}/api/orders/${orderId}/deliver`,
                 {},
                 authHeaders
             );
@@ -188,7 +188,7 @@ function RiderDashboard() {
                     const lng = position.coords.longitude;
 
                     const res = await axios.put(
-                        "http://localhost:5000/api/riders/location",
+                        `${process.env.VITE_APP_API_URL}/api/riders/location`,
                         { lat, lng },
                         authHeaders
                     );

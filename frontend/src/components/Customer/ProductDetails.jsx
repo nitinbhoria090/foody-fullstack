@@ -38,7 +38,7 @@ function ProductDetails() {
       setLoading(true);
 
       const res = await axios.get(
-        `http://localhost:5000/api/products/${id}`
+        `${process.env.VITE_APP_API_URL}/api/products/${id}`
       );
 
       if (res.data.success) {
@@ -58,7 +58,7 @@ function ProductDetails() {
       setLoadingRelated(true);
 
       const res = await axios.get(
-        `http://localhost:5000/api/products/category/${categoryId}`
+        `${process.env.VITE_APP_API_URL}/api/products/category/${categoryId}`
       );
 
       if (res.data.success) {
@@ -92,7 +92,7 @@ function ProductDetails() {
     try {
       setAddingToCart(true);
 
-      const res = await API.post("/cart/add", {
+      const res = await API.post(`${process.env.VITE_APP_API_URL}/cart/add`, {
         productId: id,
         quantity: 1,
       });

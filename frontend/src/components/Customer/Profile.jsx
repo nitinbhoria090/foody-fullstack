@@ -158,12 +158,12 @@ function Profile() {
       setSavingAddress(true);
 
       const res = editingAddressId
-        ? await API.put(`/address/${editingAddressId}`, addressForm, {
+        ? await API.put(`${process.env.VITE_APP_API_URL}/address/${editingAddressId}`, addressForm, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           })
-        : await API.post("/address/add", addressForm, {
+        : await API.post(`${process.env.VITE_APP_API_URL}/address/add`, addressForm, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
@@ -186,7 +186,7 @@ function Profile() {
 
   const handleDeleteAddress = async (id) => {
     try {
-      const res = await API.delete(`/address/${id}`, {
+      const res = await API.delete(`${process.env.VITE_APP_API_URL}/address/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
