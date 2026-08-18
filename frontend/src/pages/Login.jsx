@@ -529,10 +529,10 @@ function Login() {
               Want to become a rider?{" "}
 
               <Link
-                to="/rider/register"
+                to="/register"
                 className="font-bold text-orange-600 hover:text-orange-700"
               >
-                Register as Rider
+                Register
               </Link>
 
             </p>

@@ -15,7 +15,8 @@ const app = express();
 
 app.use(
     cors({
-        origin: "https://foody-fullstack-coral.vercel.app",
+        origin:["https://foody-fullstack-coral.vercel.app",
+        "http://localhost:5173"],
         credentials: true,
     })
 );
@@ -33,6 +34,7 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/riders", riderRoutes);
 
 
 
