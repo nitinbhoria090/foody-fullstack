@@ -325,10 +325,12 @@ function Register() {
                 onChange={handleChange}
                 className="flex h-11 w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3 text-sm font-medium text-stone-800 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               >
-                <option value="customer">Customer (Order Food)</option>
-                <option value="rider">Rider (Delivery Partner)</option>
+                {/* values ko backend ke schema ke mutabik 'user' aur 'delivery' kijiye */}
+                <option value="user">Customer (Order Food)</option>
+                <option value="delivery">Rider (Delivery Partner)</option>
                 <option value="admin">Admin (Dashboard Control)</option>
               </select>
+
             </div>
           </div>
 
