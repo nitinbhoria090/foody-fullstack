@@ -237,9 +237,7 @@ function Login() {
   try {
     let data;
 
-    // =========================
-    // RIDER LOGIN
-    // =========================
+  
     if (form.loginAs === "rider") {
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/riders/login`,
