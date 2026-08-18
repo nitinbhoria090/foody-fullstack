@@ -28,11 +28,12 @@ function Orders_history() {
         try {
             setLoading(true);
 
-            const res = await API.get(`${import.meta.env.VITE_APP_API_URL}/orders/my-orders`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
+            const res = await API.get(`${import.meta.env.VITE_APP_API_URL}/api/orders/my-orders`, {
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+});
+
 
             if (res.data.success) {
                 setOrders(res.data.orders || []);
