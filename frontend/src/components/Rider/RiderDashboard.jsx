@@ -33,6 +33,7 @@ function RiderDashboard() {
     const [locationLoading, setLocationLoading] = useState(false);
     const [ordersLoading, setOrdersLoading] = useState(false);
     const [delivering, setDelivering] = useState(null);
+    navigation = useNavigate();
 
     // NEW: Sidebar state
     const [activeTab, setActiveTab] = useState("dashboard");
@@ -238,7 +239,7 @@ function RiderDashboard() {
         localStorage.removeItem("rider");
         localStorage.removeItem("user");
         localStorage.removeItem("role");
-        window.location.href = "/login";
+        navigation("/login");
     };
 
     // ==========================================
