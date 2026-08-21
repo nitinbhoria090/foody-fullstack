@@ -38,7 +38,7 @@ function ProductDetails() {
       setLoading(true);
 
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}/api/products/${id}`
+        `/api/products/${id}`
       );
 
       if (res.data.success) {
@@ -58,7 +58,7 @@ function ProductDetails() {
       setLoadingRelated(true);
 
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}/api/products/category/${categoryId}`
+        `/api/products/category/${categoryId}`
       );
 
       if (res.data.success) {
@@ -75,7 +75,7 @@ function ProductDetails() {
 
   const fetchCartCount = async () => {
     try {
-      const res = await API.get("/cart");
+      const res = await API.get("/api/cart");
       if (res.data.success) {
         const count = res.data.cart.items?.reduce(
           (sum, item) => sum + item.quantity,
@@ -92,7 +92,7 @@ function ProductDetails() {
     try {
       setAddingToCart(true);
 
-      const res = await API.post(`${import.meta.env.VITE_APP_API_URL}/cart/add`, {
+      const res = await API.post("/api/cart/add", {
         productId: id,
         quantity: 1,
       });
@@ -311,7 +311,7 @@ function ProductDetails() {
           )}
         </div>
 
-        {/* ── More like this ── */}
+        
         <div className="mt-6">
           <h2 className="mb-3 text-base font-bold text-stone-900">More like this</h2>
 
@@ -353,7 +353,7 @@ function ProductDetails() {
         </div>
       </div>
 
-      {/* ── Floating Draggable Cart Icon ── */}
+      
       {cartCount > 0 && (
         <div
           onMouseDown={handleDragStart}
