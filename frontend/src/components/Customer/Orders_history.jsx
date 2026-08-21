@@ -24,28 +24,22 @@ function Orders_history() {
         getOrders();
     }, []);
 
-    const getOrders = async () => {
-        try {
-            setLoading(true);
+   const getOrders = async () => {
+    try {
+        setLoading(true);
 
-            const res = await API.get(`${import.meta.env.VITE_APP_API_URL}/api/orders/my-orders`, {
-    headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-});
+        const res = await API.get("/api/orders/my-orders");
 
-
-            if (res.data.success) {
-                setOrders(res.data.orders || []);
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error("Failed to load orders");
-        } finally {
-            setLoading(false);
+        if (res.data.success) {
+            setOrders(res.data.orders || []);
         }
-    };
-
+    } catch (error) {
+        console.log(error);
+        toast.error("Failed to load orders");
+    } finally {
+        setLoading(false);
+    }
+};
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-stone-50">
