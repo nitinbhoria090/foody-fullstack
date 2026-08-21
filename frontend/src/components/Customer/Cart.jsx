@@ -373,7 +373,6 @@
 // export default Cart;
 
 
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/axios";
@@ -480,7 +479,7 @@ function Cart() {
         return;
       }
       const script = document.createElement("script");
-      script.src = "https://razorpay.com";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
