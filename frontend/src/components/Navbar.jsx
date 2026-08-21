@@ -42,7 +42,7 @@ const ROLE_META = {
 };
 
 const authHeaders = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   withCredentials: true,
 });
 
@@ -76,21 +76,27 @@ const rawRole = user?.role === "delivery" ? "rider" : user?.role;
 
   const profileRef = useOutsideClose(() => setProfileOpen(false));
 
-  const fetchCartCount = useCallback(async () => {
-    if (role !== "customer" || !localStorage.getItem("accessToken || token")) {
-      setCartCount(0);
-      return;
-    }
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}/api/v1/cart`,
-        authHeaders(),
+const fetchCartCount = useCallback(async () => {
+  if (role !== "customer" || !localStorage.getItem("token")) {
+    setCartCount(0);
+    return;
+  }
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_APP_API_URL}/api/cart`,
+      authHeaders(),
+    );
+    if (res.data?.success) {
+      const count = res.data.cart?.items?.reduce(
+        (sum, item) => sum + item.quantity,
+        0
       );
-      if (res.data?.success) setCartCount(res.data.cart?.totalItems || 0);
-    } catch (_) {
-      
+      setCartCount(count || 0);
     }
-  }, [role]);
+  } catch (_) {
+    // silent
+  }
+}, [role]);
 
   useEffect(() => {
     fetchCartCount();
