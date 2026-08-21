@@ -1000,9 +1000,9 @@ function Cart() {
                   Cash on Delivery
                 </button>
                 <button
-                  onClick={() => setPaymentMethod("Online")}
+                  onClick={() => setPaymentMethod("ONLINE")}
                   className={`rounded-xl border py-3 text-xs font-bold transition-colors ${
-                    paymentMethod === "Online"
+                    paymentMethod === "ONLINE"
                       ? "border-orange-500 bg-orange-50 text-orange-700"
                       : "border-stone-200 text-stone-500 hover:border-stone-300"
                   }`}
