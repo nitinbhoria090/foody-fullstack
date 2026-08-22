@@ -530,7 +530,7 @@ const AddItem = () => {
 
       if (res.data.success) {
         toast.success("Product Added Successfully");
-        navigate("/admin/items");
+        navigate("/admin/dashboard"); // Navigate to the admin dashboard or items list page
       }
     } catch (error) {
       toast.error(
