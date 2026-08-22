@@ -280,9 +280,9 @@ function AdminOrders() {
                                         <div className="flex items-start gap-2 mt-1 text-sm text-gray-600">
                                             <FiMapPin size={14} className="mt-0.5" />
                                             <span>
-                                                {order.deliveryAddress
-                                                    ? `${order.deliveryAddress.street || ""}, ${
-                                                          order.deliveryAddress.city || ""
+                                                {order.address
+                                                    ? `${order.address.street || ""}, ${
+                                                          order.address.city || ""
                                                       }`
                                                     : "No address"}
                                             </span>
@@ -294,19 +294,19 @@ function AdminOrders() {
                                             Total Amount
                                         </p>
                                         <p className="font-bold text-lg text-orange-600">
-                                            ₹{order.totalAmount ?? 0}
+                                            ₹{order.totalPrice ?? 0}
                                         </p>
 
                                         <span
                                             className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                                                order.orderStatus === "delivered"
+                                                order.orderStatus === "Delivered"
                                                     ? "bg-green-100 text-green-700"
-                                                    : order.orderStatus === "cancelled"
+                                                    : order.orderStatus === "Cancelled"
                                                     ? "bg-red-100 text-red-700"
                                                     : "bg-yellow-100 text-yellow-700"
                                             }`}
                                         >
-                                            {order.orderStatus || "pending"}
+                                            {order.orderStatus || "Pending"}
                                         </span>
                                     </div>
                                 </div>
@@ -341,7 +341,7 @@ function AdminOrders() {
                                         <FiTruck className="text-gray-500" />
                                         <select
                                             className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                                            value={order.rider?._id || ""}
+                                            value={order.assignedRider || ""}
                                             onChange={(e) =>
                                                 assignRider(order._id, e.target.value)
                                             }
@@ -350,6 +350,8 @@ function AdminOrders() {
                                             <option value="">
                                                 {assigning === order._id
                                                     ? "Assigning..."
+                                                    : order.riderName
+                                                    ? order.riderName
                                                     : "Assign Rider"}
                                             </option>
                                             {riders.map((rider) => (
@@ -362,19 +364,18 @@ function AdminOrders() {
 
                                     <select
                                         className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                                        value={order.orderStatus || "pending"}
+                                        value={order.orderStatus || "Pending"}
                                         onChange={(e) =>
                                             updateStatus(order._id, e.target.value)
                                         }
                                     >
-                                        <option value="pending">Pending</option>
-                                        <option value="confirmed">Confirmed</option>
-                                        <option value="preparing">Preparing</option>
-                                        <option value="out for delivery">
-                                            Out for Delivery
+                                        <option value="Pending">Pending</option>
+                                        <option value="Preparing">Preparing</option>
+                                        <option value="Out For Delivery">
+                                            Out For Delivery
                                         </option>
-                                        <option value="delivered">Delivered</option>
-                                        <option value="cancelled">Cancelled</option>
+                                        <option value="Delivered">Delivered</option>
+                                        <option value="Cancelled">Cancelled</option>
                                     </select>
                                 </div>
                             </div>
