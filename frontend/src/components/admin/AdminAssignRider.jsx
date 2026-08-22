@@ -26,12 +26,12 @@ function AdminAssignRider() {
 
             const [ordersRes, ridersRes] = await Promise.all([
                 axios.get(
-                    "http://localhost:5000/api/orders",
+                    "${import.meta.env.VITE_APP_API_URL}/api/orders",
                     authHeaders
                 ),
 
                 axios.get(
-                    "http://localhost:5000/api/riders/available",
+                    "${import.meta.env.VITE_APP_API_URL}/api/riders/available",
                     authHeaders
                 )
             ]);
@@ -61,7 +61,7 @@ function AdminAssignRider() {
             setAssigning(orderId);
 
             const res = await axios.put(
-                `http://localhost:5000/api/orders/${orderId}/assign-rider`,
+                `${import.meta.env.VITE_APP_API_URL}/api/orders/${orderId}/assign-rider`,
                 {
                     riderId
                 },

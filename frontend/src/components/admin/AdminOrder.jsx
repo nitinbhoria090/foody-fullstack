@@ -35,12 +35,12 @@ function AdminOrders() {
 
             const [ordersRes, ridersRes] = await Promise.all([
                 axios.get(
-                    "http://localhost:5000/api/orders",
+                    "${import.meta.env.VITE_APP_API_URL}/api/orders",
                     authHeaders
                 ),
 
                 axios.get(
-                    "http://localhost:5000/api/orders/riders",
+                    "${import.meta.env.VITE_APP_API_URL}/api/orders/riders",
                     authHeaders
                 ),
             ]);
@@ -76,7 +76,7 @@ function AdminOrders() {
             setAssigning(orderId);
 
             const res = await axios.put(
-                `http://localhost:5000/api/orders/${orderId}/assign-rider`,
+                `${import.meta.env.VITE_APP_API_URL}/api/orders/${orderId}/assign-rider`,
                 {
                     riderId,
                 },
@@ -118,7 +118,7 @@ function AdminOrders() {
     const fetchRiders = async () => {
         try {
             const res = await axios.get(
-                "http://localhost:5000/api/orders/riders",
+                "${import.meta.env.VITE_APP_API_URL}/api/orders/riders",
                 authHeaders
             );
 
@@ -137,7 +137,7 @@ function AdminOrders() {
     const updateStatus = async (orderId, status) => {
         try {
             const res = await axios.put(
-                `http://localhost:5000/api/orders/${orderId}/status`,
+                `${import.meta.env.VITE_APP_API_URL}/api/orders/${orderId}/status`,
                 {
                     orderStatus: status,
                 },
