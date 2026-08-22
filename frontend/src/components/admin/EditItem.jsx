@@ -104,7 +104,7 @@ const EditItem = () => {
 
       if (res.data.success) {
 
-        navigate("/"); 
+        navigate("/admin/dashboard"); 
       }
     } catch (err) {
       console.error("Failed to update item:", err.response?.data || err.message);
