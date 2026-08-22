@@ -215,7 +215,9 @@ const AdminAnalytics = () => {
 
     return orders.reduce((sum, order) => {
 
+      // NOTE: backend Order model stores this as `totalPrice`
       const amount =
+        order.totalPrice ??
         order.totalAmount ??
         order.total ??
         order.amount ??
@@ -316,7 +318,9 @@ const AdminAnalytics = () => {
 
       if (byKey[key]) {
 
+        // NOTE: backend Order model stores this as `totalPrice`
         const amount =
+          order.totalPrice ??
           order.totalAmount ??
           order.total ??
           order.amount ??
