@@ -261,7 +261,121 @@ function AdminOrders() {
                             {/* ORDER HEADER */}
                             <div className="p-5 border-b border-gray-100">
                                 <div className="flex flex-col md:flex-row justify-between gap-4">
-                                    {/* Order mapping continues here... */}
+                                    <div>
+                                        <p className="text-xs text-gray-400 font-medium">
+                                            Order ID
+                                        </p>
+                                        <p className="font-semibold text-gray-800">
+                                            #{order._id.slice(-8).toUpperCase()}
+                                        </p>
+
+                                        <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                                            <FiUser size={14} />
+                                            <span>
+                                                {order.user?.name || "N/A"} (
+                                                {order.user?.email || "N/A"})
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-start gap-2 mt-1 text-sm text-gray-600">
+                                            <FiMapPin size={14} className="mt-0.5" />
+                                            <span>
+                                                {order.deliveryAddress
+                                                    ? `${order.deliveryAddress.street || ""}, ${
+                                                          order.deliveryAddress.city || ""
+                                                      }`
+                                                    : "No address"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="text-left md:text-right">
+                                        <p className="text-xs text-gray-400 font-medium">
+                                            Total Amount
+                                        </p>
+                                        <p className="font-bold text-lg text-orange-600">
+                                            ₹{order.totalAmount ?? 0}
+                                        </p>
+
+                                        <span
+                                            className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+                                                order.orderStatus === "delivered"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : order.orderStatus === "cancelled"
+                                                    ? "bg-red-100 text-red-700"
+                                                    : "bg-yellow-100 text-yellow-700"
+                                            }`}
+                                        >
+                                            {order.orderStatus || "pending"}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* ITEMS */}
+                                {order.items && order.items.length > 0 && (
+                                    <div className="mt-4 border-t border-gray-100 pt-3">
+                                        <p className="text-xs text-gray-400 font-medium mb-1">
+                                            Items
+                                        </p>
+                                        <ul className="text-sm text-gray-700 space-y-1">
+                                            {order.items.map((item, idx) => (
+                                                <li
+                                                    key={idx}
+                                                    className="flex justify-between"
+                                                >
+                                                    <span>
+                                                        {item.name} × {item.quantity}
+                                                    </span>
+                                                    <span>
+                                                        ₹{item.price * item.quantity}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {/* STATUS + RIDER CONTROLS */}
+                                <div className="mt-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <FiTruck className="text-gray-500" />
+                                        <select
+                                            className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                                            value={order.rider?._id || ""}
+                                            onChange={(e) =>
+                                                assignRider(order._id, e.target.value)
+                                            }
+                                            disabled={assigning === order._id}
+                                        >
+                                            <option value="">
+                                                {assigning === order._id
+                                                    ? "Assigning..."
+                                                    : "Assign Rider"}
+                                            </option>
+                                            {riders.map((rider) => (
+                                                <option key={rider._id} value={rider._id}>
+                                                    {rider.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <select
+                                        className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                                        value={order.orderStatus || "pending"}
+                                        onChange={(e) =>
+                                            updateStatus(order._id, e.target.value)
+                                        }
+                                    >
+                                        <option value="pending">Pending</option>
+                                        <option value="confirmed">Confirmed</option>
+                                        <option value="preparing">Preparing</option>
+                                        <option value="out for delivery">
+                                            Out for Delivery
+                                        </option>
+                                        <option value="delivered">Delivered</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
