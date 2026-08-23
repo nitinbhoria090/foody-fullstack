@@ -1200,11 +1200,11 @@ function Cart() {
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude, accuracy } = position.coords;
 
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
             {
               headers: {
                 Accept: "application/json",
@@ -1239,7 +1239,17 @@ function Cart() {
             postalCode: addr.postcode || prev.postalCode,
           }));
 
-          toast.success("Location detected — please review the details");
+          // GPS accuracy is in meters — warn if it's coarse (e.g. IP-based
+          // location on a laptop instead of a phone's real GPS chip)
+          if (accuracy > 100) {
+            toast.info(
+              `Location detected, but only accurate to ~${Math.round(
+                accuracy
+              )}m — please double check the details below`
+            );
+          } else {
+            toast.success("Location detected — please review the details");
+          }
         } catch (error) {
           console.log(error);
           toast.error("Couldn't fetch address for your location");
