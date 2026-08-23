@@ -53,7 +53,7 @@
 
 //       const res = await API.get(`/orders/${id}`, {
 //         headers: {
-//           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+//           Authorization: `Bearer ${localStorage.getItem("token")}`,
 //         },
 //       });
 

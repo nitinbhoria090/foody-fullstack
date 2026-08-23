@@ -33,7 +33,7 @@
 
 // const authHeaders = () => ({
 //   headers: {
-//     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+//     Authorization: `Bearer ${localStorage.getItem("token")}`,
 //   },
 //   withCredentials: true,
 // });
@@ -88,7 +88,7 @@
 
 //   useEffect(() => {
 //     const fetchOrders = async () => {
-//       if (!localStorage.getItem("accessToken")) {
+//       if (!localStorage.getItem("token")) {
 //         setLoadingOrders(false);
 //         return;
 //       }
