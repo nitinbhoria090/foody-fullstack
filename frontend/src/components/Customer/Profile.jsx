@@ -56,7 +56,7 @@ function Profile() {
 
       const res = await API.get("/api/address", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -88,7 +88,7 @@ function Profile() {
       // other route in this app, which caused a 404.
       const res = await API.put("/api/users/profile", infoForm, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -162,12 +162,12 @@ function Profile() {
       const res = editingAddressId
         ? await API.put(`${import.meta.env.VITE_APP_API_URL}/api/address/${editingAddressId}`, addressForm, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           })
         : await API.post(`${import.meta.env.VITE_APP_API_URL}/api/address/add`, addressForm, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           });
 
@@ -190,7 +190,7 @@ function Profile() {
     try {
       const res = await API.delete(`${import.meta.env.VITE_APP_API_URL}/api/address/${id}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -204,7 +204,7 @@ function Profile() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
     navigate("/login");
