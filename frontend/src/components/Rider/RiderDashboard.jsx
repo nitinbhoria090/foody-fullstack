@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
+
+
 
 import {
     FiTruck,
@@ -33,7 +36,8 @@ function RiderDashboard() {
     const [locationLoading, setLocationLoading] = useState(false);
     const [ordersLoading, setOrdersLoading] = useState(false);
     const [delivering, setDelivering] = useState(null);
-    navigation = useNavigate();
+    const navigation = useNavigate();
+
 
     // NEW: Sidebar state
     const [activeTab, setActiveTab] = useState("dashboard");
