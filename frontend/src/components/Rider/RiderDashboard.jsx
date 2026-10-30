@@ -23,10 +23,6 @@ import {
 
 function RiderDashboard() {
 
-    // ==========================================
-    // STATES
-    // ==========================================
-
     const [rider, setRider] = useState(null);
     const [stats, setStats] = useState(null);
     const [orders, setOrders] = useState([]);
@@ -77,9 +73,7 @@ function RiderDashboard() {
         }
     };
 
-    // ==========================================
-    // REFRESH ORDERS
-    // ==========================================
+
 
     const fetchOrders = async () => {
         try {
@@ -102,9 +96,6 @@ function RiderDashboard() {
         }
     };
 
-    // ==========================================
-    // ONLINE / OFFLINE
-    // ==========================================
 
     const toggleAvailability = async () => {
         if (!stats) return;
@@ -134,9 +125,8 @@ function RiderDashboard() {
         }
     };
 
-    // ==========================================
     // MARK DELIVERED
-    // ==========================================
+  
 
     const markDelivered = async (orderId) => {
         try {
@@ -174,9 +164,9 @@ function RiderDashboard() {
         }
     };
 
-    // ==========================================
+  
     // UPDATE LOCATION
-    // ==========================================
+   
 
     const updateLocation = () => {
         if (!navigator.geolocation) {
@@ -234,9 +224,9 @@ function RiderDashboard() {
         );
     };
 
-    // ==========================================
+
     // LOGOUT
-    // ==========================================
+
 
     const logout = () => {
         localStorage.removeItem("token");
@@ -246,9 +236,9 @@ function RiderDashboard() {
         navigation("/login");
     };
 
-    // ==========================================
+    
     // SIDEBAR NAV ITEMS
-    // ==========================================
+   
 
     const navItems = [
         { key: "dashboard", label: "Dashboard", icon: <FiHome /> },
@@ -257,9 +247,9 @@ function RiderDashboard() {
         { key: "location", label: "Location", icon: <FiMapPin /> },
     ];
 
-    // ==========================================
+   
     // LOADING
-    // ==========================================
+
 
     if (loading) {
         return (
@@ -272,17 +262,14 @@ function RiderDashboard() {
         );
     }
 
-    // ==========================================
+
     // UI
-    // ==========================================
+   
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
 
-            {/* =====================================
-                SIDEBAR (Desktop)
-            ===================================== */}
-
+            
             <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 fixed h-screen">
 
                 <div className="p-6 border-b border-gray-100">
@@ -323,9 +310,7 @@ function RiderDashboard() {
 
             </aside>
 
-            {/* =====================================
-                MOBILE SIDEBAR (Drawer)
-            ===================================== */}
+           
 
             {sidebarOpen && (
                 <div className="lg:hidden fixed inset-0 z-40 flex">
@@ -387,9 +372,7 @@ function RiderDashboard() {
                 </div>
             )}
 
-            {/* =====================================
-                MAIN CONTENT
-            ===================================== */}
+     
 
             <div className="flex-1 lg:ml-64">
 
@@ -420,9 +403,6 @@ function RiderDashboard() {
 
                 <main className="max-w-6xl mx-auto px-5 py-8">
 
-                    {/* =====================================
-                        TAB: DASHBOARD
-                    ===================================== */}
 
                     {activeTab === "dashboard" && (
                         <>
@@ -507,9 +487,7 @@ function RiderDashboard() {
                         </>
                     )}
 
-                    {/* =====================================
-                        TAB: ORDERS
-                    ===================================== */}
+             
 
                     {activeTab === "orders" && (
                         <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -690,9 +668,7 @@ function RiderDashboard() {
                         </div>
                     )}
 
-                    {/* =====================================
-                        TAB: PROFILE
-                    ===================================== */}
+    
 
                     {activeTab === "profile" && (
                         <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -728,9 +704,9 @@ function RiderDashboard() {
                         </div>
                     )}
 
-                    {/* =====================================
+                 
                         TAB: LOCATION
-                    ===================================== */}
+            
 
                     {activeTab === "location" && (
                         <div className="bg-white rounded-2xl shadow-sm p-6">
