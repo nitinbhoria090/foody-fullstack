@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { getData } from "@/context/userContext";
 
-/* ---------- react-icons replacement ---------- */
+
 import {
   FiSearch,
   FiShoppingCart,
@@ -16,7 +16,6 @@ import {
 } from "react-icons/fi";
 import { MdOutlineDirectionsBike } from "react-icons/md"; // Bike icon from Material Design icons
 
-/* ---------- nav link sets per role ---------- */
 const NAV_LINKS = {
   customer: [
     { label: "Offers", to: "/offers" },
