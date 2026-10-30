@@ -30,9 +30,7 @@ import {
 } from "recharts";
 
 
-// ==========================================
-// AUTH HEADERS
-// ==========================================
+
 
 const authHeaders = () => ({
   headers: {
@@ -42,9 +40,6 @@ const authHeaders = () => ({
 });
 
 
-// ==========================================
-// COLORS
-// ==========================================
 
 const ORANGE = "#f97316";
 const AMBER = "#f59e0b";
@@ -61,9 +56,7 @@ const STATUS_COLORS = {
 };
 
 
-// ==========================================
-// ADMIN ANALYTICS
-// ==========================================
+
 
 const AdminAnalytics = () => {
 
@@ -77,10 +70,6 @@ const AdminAnalytics = () => {
 
   const [rangeDays, setRangeDays] = useState(7);
 
-
-  // ==========================================
-  // FETCH PRODUCTS
-  // ==========================================
 
   useEffect(() => {
 
@@ -123,11 +112,6 @@ const AdminAnalytics = () => {
     fetchItems();
 
   }, []);
-
-
-  // ==========================================
-  // FETCH ORDERS
-  // ==========================================
 
   useEffect(() => {
 
@@ -172,10 +156,6 @@ const AdminAnalytics = () => {
   }, []);
 
 
-  // ==========================================
-  // VEG ITEMS
-  // ==========================================
-
   const vegItems = items.filter(
     (item) =>
       item.isVeg === true ||
@@ -183,9 +163,6 @@ const AdminAnalytics = () => {
   );
 
 
-  // ==========================================
-  // NON VEG ITEMS
-  // ==========================================
 
   const nonVegItems = items.filter(
     (item) =>
@@ -193,10 +170,6 @@ const AdminAnalytics = () => {
       item.foodType?.toLowerCase() === "non-veg"
   );
 
-
-  // ==========================================
-  // PENDING / ACTIVE ORDERS
-  // ==========================================
 
   const pendingOrders = orders.filter(
     (order) =>
@@ -206,10 +179,6 @@ const AdminAnalytics = () => {
       )
   );
 
-
-  // ==========================================
-  // TOTAL REVENUE
-  // ==========================================
 
   const totalRevenue = useMemo(() => {
 
@@ -237,9 +206,7 @@ const AdminAnalytics = () => {
   }, [orders]);
 
 
-  // ==========================================
-  // AVERAGE ORDER VALUE
-  // ==========================================
+
 
   const avgOrderValue =
     orders.length
@@ -247,9 +214,6 @@ const AdminAnalytics = () => {
       : 0;
 
 
-  // ==========================================
-  // REVENUE TREND
-  // ==========================================
 
   const trendData = useMemo(() => {
 
@@ -350,9 +314,6 @@ const AdminAnalytics = () => {
   }, [orders, rangeDays]);
 
 
-  // ==========================================
-  // ORDERS BY STATUS
-  // ==========================================
 
   const statusData = useMemo(() => {
 
@@ -392,9 +353,6 @@ const AdminAnalytics = () => {
   }, [orders]);
 
 
-  // ==========================================
-  // TOP SELLING ITEMS
-  // ==========================================
 
   const topItems = useMemo(() => {
 
@@ -451,10 +409,6 @@ const AdminAnalytics = () => {
   }, [orders]);
 
 
-  // ==========================================
-  // VEG / NON VEG CHART
-  // ==========================================
-
   const vegSplitData = [
 
     {
@@ -472,9 +426,7 @@ const AdminAnalytics = () => {
   ];
 
 
-  // ==========================================
-  // DISPLAY NAME
-  // ==========================================
+
 
   const displayName =
     user?.restaurantName ||
@@ -483,18 +435,12 @@ const AdminAnalytics = () => {
     "there";
 
 
-  // ==========================================
-  // LOADING
-  // ==========================================
+  
 
   const isLoading =
     loadingItems ||
     loadingOrders;
 
-
-  // ==========================================
-  // SUMMARY CARDS
-  // ==========================================
 
   const summaryCards = [
 
@@ -552,17 +498,11 @@ const AdminAnalytics = () => {
   ];
 
 
-  // ==========================================
-  // UI
-  // ==========================================
-
   return (
 
     <div className="min-h-screen w-full bg-stone-50 font-sans">
 
-      {/* ======================================
-          HEADER
-      ====================================== */}
+     
 
       <div className="relative bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 px-6 pt-8 pb-10 shadow-md">
 
@@ -594,18 +534,13 @@ const AdminAnalytics = () => {
       </div>
 
 
-      {/* ======================================
-          MAIN CONTENT
-      ====================================== */}
+     
 
       <main className="min-h-screen w-full overflow-x-hidden pb-20">
 
         <div className="mx-auto max-w-6xl px-4 pt-6 space-y-8 lg:px-8">
 
 
-          {/* ==================================
-              SUMMARY CARDS
-          ================================== */}
 
           <section className="grid grid-cols-2 gap-3.5 sm:gap-4 lg:grid-cols-4">
 
@@ -662,9 +597,7 @@ const AdminAnalytics = () => {
           </section>
 
 
-          {/* ==================================
-              REVENUE TREND
-          ================================== */}
+         
 
           <section className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm sm:p-5">
 
@@ -793,11 +726,6 @@ const AdminAnalytics = () => {
             )}
 
           </section>
-
-
-          {/* ==================================
-              ORDER STATUS + MENU COMPOSITION
-          ================================== */}
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
 
@@ -984,9 +912,6 @@ const AdminAnalytics = () => {
           </div>
 
 
-          {/* ==================================
-              TOP SELLING ITEMS
-          ================================== */}
 
           <section className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm sm:p-5">
 
