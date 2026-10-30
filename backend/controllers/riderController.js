@@ -3,9 +3,6 @@ const Order = require("../models/Order");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// ===============================
-// REGISTER RIDER
-// ===============================
 const registerRider = async (req, res) => {
     try {
         const {
@@ -79,9 +76,7 @@ const registerRider = async (req, res) => {
 };
 
 
-// ===============================
-// RIDER LOGIN
-// ===============================
+
 const loginRider = async (req, res) => {
     try {
 
@@ -145,9 +140,6 @@ const loginRider = async (req, res) => {
 };
 
 
-// ===============================
-// GET RIDER PROFILE
-// ===============================
 const getRiderProfile = async (req, res) => {
     try {
 
@@ -177,10 +169,6 @@ const getRiderProfile = async (req, res) => {
     }
 };
 
-
-// ===============================
-// UPDATE RIDER AVAILABILITY
-// ===============================
 const updateAvailability = async (req, res) => {
     try {
 
@@ -225,9 +213,7 @@ const updateAvailability = async (req, res) => {
     }
 };
 
-// ===============================
-// UPDATE RIDER LIVE LOCATION
-// ===============================
+
 const updateRiderLocation = async (req, res) => {
     try {
 
@@ -298,9 +284,7 @@ const updateRiderLocation = async (req, res) => {
         });
     }
 };
-// ===============================
-// GET AVAILABLE RIDERS
-// ===============================
+
 const getAvailableRiders = async (req, res) => {
     try {
 
