@@ -66,10 +66,6 @@ function AdminOrders() {
         }
     };
 
-    // ==========================================
-    // ASSIGN RIDER
-    // ==========================================
-
     const assignRider = async (orderId, riderId) => {
         if (!riderId) return;
 
@@ -112,9 +108,7 @@ function AdminOrders() {
         }
     };
 
-    // ==========================================
-    // FETCH RIDERS
-    // ==========================================
+
 
     const fetchRiders = async () => {
         try {
@@ -132,9 +126,6 @@ function AdminOrders() {
         }
     };
 
-    // ==========================================
-    // UPDATE ORDER STATUS
-    // ==========================================
 
     const updateStatus = async (orderId, status) => {
         try {
@@ -168,9 +159,6 @@ function AdminOrders() {
         }
     };
 
-    // ==========================================
-    // LOADING
-    // ==========================================
 
     if (loading) {
         return (
@@ -189,9 +177,7 @@ function AdminOrders() {
         );
     }
 
-    // ==========================================
-    // UI
-    // ==========================================
+    
 
     return (
         <div className="min-h-screen bg-gray-50">
